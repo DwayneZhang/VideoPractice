@@ -1,0 +1,5 @@
+# ninja log v5
+1	425	627838273	CMakeFiles/native-lib.dir/src/main/cpp/audioplayer-lib.cpp.o	ca631aafea5261a9
+427	555	627838273	../../../../build/intermediates/cmake/debug/obj/arm64-v8a/libnative-lib.so	5bb43287f4696016
+1	384	627838534	CMakeFiles/audioplayer.dir/src/main/cpp/audioplayer-lib.cpp.o	154d50d3de3c1d4e
+384	506	627838534	../../../../build/intermediates/cmake/debug/obj/arm64-v8a/libaudioplayer.so	c4f8a84304ae482d

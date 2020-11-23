@@ -1,0 +1,29 @@
+{
+  "buildFiles": [
+    "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\CMakeLists.txt",
+    "D:\\SDK\\ndk\\21.1.6352462\\build\\cmake\\android.toolchain.cmake",
+    "D:\\SDK\\ndk\\21.1.6352462\\build\\cmake\\platforms.cmake"
+  ],
+  "cleanCommands": [
+    "D:\\SDK\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\.cxx\\cmake\\debug\\arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "D:\\SDK\\cmake\\3.10.2.4988404\\bin\\ninja.exe  -C \"E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\.cxx\\cmake\\debug\\arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "audioplayer-Debug-arm64-v8a": {
+      "artifactName": "audioplayer",
+      "buildCommand": "D:\\SDK\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\.cxx\\cmake\\debug\\arm64-v8a\" audioplayer",
+      "abi": "arm64-v8a",
+      "output": "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\build\\intermediates\\cmake\\debug\\obj\\arm64-v8a\\libaudioplayer.so",
+      "runtimeFiles": [
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libavcodec-57.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libavdevice-57.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libavfilter-6.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libavformat-57.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libavutil-55.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libswresample-2.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libswscale-4.so",
+        "E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\libs\\arm64-v8a\\libpostproc-54.so"
+      ]
+    }
+  }
+}
