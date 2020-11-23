@@ -1,3 +1,0 @@
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/arm64-v8a/CMakeFiles/audioplayer.dir
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/arm64-v8a/CMakeFiles/edit_cache.dir
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir

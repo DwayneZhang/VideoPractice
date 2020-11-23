@@ -1,7 +1,0 @@
-[
-{
-  "directory": "E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/armeabi-v7a",
-  "command": "D:\\SDK\\ndk\\21.1.6352462\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=armv7-none-linux-androideabi21 --gcc-toolchain=D:/SDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=D:/SDK/ndk/21.1.6352462/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Daudioplayer_EXPORTS -I../../../../src/main/cpp/include  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC   -o CMakeFiles\\audioplayer.dir\\src\\main\\cpp\\audioplayer-lib.cpp.o -c E:\\ASWorkspace\\AudioPractice\\AudioPlayer\\src\\main\\cpp\\audioplayer-lib.cpp",
-  "file": "E:/ASWorkspace/AudioPractice/AudioPlayer/src/main/cpp/audioplayer-lib.cpp"
-}
-]

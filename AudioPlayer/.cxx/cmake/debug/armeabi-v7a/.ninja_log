@@ -1,5 +1,0 @@
-# ninja log v5
-1	388	627838272	CMakeFiles/native-lib.dir/src/main/cpp/audioplayer-lib.cpp.o	e5544856fdd28597
-389	523	627838272	../../../../build/intermediates/cmake/debug/obj/armeabi-v7a/libnative-lib.so	4f3288c86b526d5a
-1	383	627838533	CMakeFiles/audioplayer.dir/src/main/cpp/audioplayer-lib.cpp.o	f1f4d9e60c70e002
-383	516	627838533	../../../../build/intermediates/cmake/debug/obj/armeabi-v7a/libaudioplayer.so	c6c909c090e2b9b2

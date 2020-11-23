@@ -1,3 +1,0 @@
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/audioplayer.dir
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-E:/ASWorkspace/AudioPractice/AudioPlayer/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
