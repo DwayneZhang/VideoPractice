@@ -6,7 +6,11 @@ cmake_minimum_required(VERSION 3.10.2)
 project("ffmpegpractice")
 include_directories(src/main/cpp/include)
 
-add_library(audioplayer SHARED src/main/cpp/audioplayer-lib.cpp)
+add_library(audioplayer-lib SHARED
+        src/main/cpp/audioplayer-lib.cpp
+        src/main/cpp/CallJava.cpp
+        src/main/cpp/FFmpeg.cpp
+        src/main/cpp/Audio.cpp)
 
 add_library( avcodec-57
         SHARED
@@ -66,7 +70,7 @@ set_target_properties( postproc-54
 
 find_library(log-lib log)
 
-target_link_libraries(audioplayer
+target_link_libraries(audioplayer-lib
         avcodec-57
         avdevice-57
         avfilter-6

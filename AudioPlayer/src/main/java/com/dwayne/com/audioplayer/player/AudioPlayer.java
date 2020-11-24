@@ -2,7 +2,7 @@ package com.dwayne.com.audioplayer.player;
 
 import android.text.TextUtils;
 
-import com.dwayne.com.audioplayer.OnInitListener;
+import com.dwayne.com.audioplayer.listener.OnPreparedListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
 
 /**
@@ -29,7 +29,7 @@ public class AudioPlayer {
     }
 
     private String source;
-    private OnInitListener onInitListener;
+    private OnPreparedListener onPreparedListener;
 
     public AudioPlayer() {
     }
@@ -38,13 +38,13 @@ public class AudioPlayer {
         this.source = source;
     }
 
-    public void setOnPreparedListener(OnInitListener onInitListener) {
-        this.onInitListener = onInitListener;
+    public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
+        this.onPreparedListener = onPreparedListener;
     }
 
-    public void init() {
+    public void prepare() {
         if(TextUtils.isEmpty(source)) {
-            LogUtil.d("source 为空");
+            LogUtil.d("source not be empty!");
             return;
         }
 
@@ -54,6 +54,15 @@ public class AudioPlayer {
                 n_prepare(source);
             }
         }).start();
+    }
+
+    /**
+     * 给jni层调用
+     */
+    public void onCallPrepare() {
+        if(onPreparedListener != null) {
+            onPreparedListener.onPrepared();
+        }
     }
 
     private native void n_prepare(String  source);

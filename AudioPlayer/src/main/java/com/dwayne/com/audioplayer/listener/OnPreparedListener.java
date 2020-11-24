@@ -1,4 +1,4 @@
-package com.dwayne.com.audioplayer;
+package com.dwayne.com.audioplayer.listener;
 
 /**
  * @author Dwayne
@@ -9,7 +9,7 @@ package com.dwayne.com.audioplayer;
  * @class describe
  */
 
-public interface OnInitListener {
+public interface OnPreparedListener {
 
-    void onInit();
+    void onPrepared();
 }

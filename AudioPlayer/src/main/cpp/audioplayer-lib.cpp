@@ -1,9 +1,37 @@
 #include <jni.h>
 #include <string>
+#include "androidlog.h"
+#include "CallJava.h"
+#include "FFmpeg.h"
+
+JavaVM *javaVM = NULL;
+CallJava *callJava = NULL;
+FFmpeg *ffmpeg = NULL;
+
+extern "C"
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    jint result = -1;
+    javaVM = vm;
+    JNIEnv *env;
+    if(vm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK) {
+        return result;
+    }
+    return JNI_VERSION_1_6;
+}
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobject thiz,
-                                                              jstring source) {
-    // TODO: implement n_prepare()
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source) {
+
+    const char *url = env->GetStringUTFChars(source, 0);
+
+    if(ffmpeg == NULL) {
+        if(callJava == NULL) {
+            callJava = new CallJava(javaVM, env, &thiz);
+        }
+        ffmpeg = new FFmpeg(callJava, url);
+        ffmpeg->perpare();
+    }
+
+//    env->ReleaseStringUTFChars(source, url);
 }
