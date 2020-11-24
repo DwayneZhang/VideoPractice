@@ -7,6 +7,7 @@
 JavaVM *javaVM = NULL;
 CallJava *callJava = NULL;
 FFmpeg *ffmpeg = NULL;
+PlayStatus *playStatus = NULL;
 
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -29,7 +30,8 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobje
         if(callJava == NULL) {
             callJava = new CallJava(javaVM, env, &thiz);
         }
-        ffmpeg = new FFmpeg(callJava, url);
+        playStatus = new PlayStatus;
+        ffmpeg = new FFmpeg(playStatus, callJava, url);
         ffmpeg->perpare();
     }
 

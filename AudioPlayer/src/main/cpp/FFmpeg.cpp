@@ -4,9 +4,10 @@
 
 #include "FFmpeg.h"
 
-FFmpeg::FFmpeg(CallJava *callJava, const char *url) {
+FFmpeg::FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url) {
     this->callJava = callJava;
     this->url = url;
+    this->playStatus = playStatus;
 }
 
 FFmpeg::~FFmpeg() {
@@ -53,7 +54,7 @@ void FFmpeg::decodeFFmpegThread() {
         //获取音频流
         if(pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if(audio == NULL) {
-                audio = new Audio();
+                audio = new Audio(playStatus);
                 audio->streamIndex = i;
                 audio->codecpar =  pFormatCtx->streams[i]->codecpar;
             }
@@ -94,5 +95,39 @@ void FFmpeg::decodeFFmpegThread() {
 
     callJava->onCallPrepared(CHILD_THREAD);
 
+    //解码音频流
+    int count = 0;
+    while (1) {
+        AVPacket  *avPacket = av_packet_alloc();
+        if(av_read_frame(pFormatCtx, avPacket) == 0) {
+            if(avPacket->stream_index == audio->streamIndex) {
+                count++;
+                if(LOG_DEBUG) {
+                    LOGD("decoded %d frame", count);
+                }
+                audio->queue->putAvPacket(avPacket);
+            } else {
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                avPacket = NULL;
+            }
+        } else {
+            av_packet_free(&avPacket);
+            av_free(avPacket);
+            avPacket = NULL;
+            break;
+        }
+    }
 
+    while (audio->queue->getQueueSize() > 0) {
+        AVPacket  *avPacket = av_packet_alloc();
+        audio->queue->getAvPacket(avPacket);
+        av_packet_free(&avPacket);
+        av_free(avPacket);
+        avPacket = NULL;
+    }
+
+    if(LOG_DEBUG) {
+        LOGD("decoded completed");
+    }
 }

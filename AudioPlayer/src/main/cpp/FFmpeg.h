@@ -21,9 +21,10 @@ public:
     pthread_t decodeThread;
     AVFormatContext  *pFormatCtx = NULL;
     Audio *audio = NULL;
+    PlayStatus *playStatus = NULL;
 
 public:
-    FFmpeg(CallJava *callJava, const char *url);
+    FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url);
     ~FFmpeg();
 
     void perpare();

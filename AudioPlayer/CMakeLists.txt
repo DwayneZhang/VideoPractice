@@ -10,7 +10,9 @@ add_library(audioplayer-lib SHARED
         src/main/cpp/audioplayer-lib.cpp
         src/main/cpp/CallJava.cpp
         src/main/cpp/FFmpeg.cpp
-        src/main/cpp/Audio.cpp)
+        src/main/cpp/Audio.cpp
+        src/main/cpp/PlayStatus.cpp
+        src/main/cpp/Queue.cpp)
 
 add_library( avcodec-57
         SHARED

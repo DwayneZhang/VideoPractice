@@ -6,6 +6,9 @@
 #define AUDIO_PRACTICE_AUDIO_H
 
 
+#include "Queue.h"
+#include "PlayStatus.h"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 };
@@ -16,9 +19,11 @@ public:
     int streamIndex = -1;
     AVCodecParameters *codecpar = NULL;
     AVCodecContext *avCodecContext = NULL;
+    Queue *queue = NULL;
+    PlayStatus *playStatus = NULL;
 
 public:
-    Audio();
+    Audio(PlayStatus *playStatus);
     ~Audio();
 };
 
