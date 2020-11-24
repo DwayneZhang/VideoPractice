@@ -10,8 +10,9 @@
 #include "PlayStatus.h"
 
 extern "C" {
-#include <libavcodec/avcodec.h>
-};
+#include "libavcodec/avcodec.h"
+#include <libswresample/swresample.h>
+}
 
 class Audio {
 
@@ -21,10 +22,20 @@ public:
     AVCodecContext *avCodecContext = NULL;
     Queue *queue = NULL;
     PlayStatus *playStatus = NULL;
+    pthread_t thread_play;
+    AVPacket *avPacket = NULL;
+    AVFrame *avFrame = NULL;
+    int ret = 0;
+    uint8_t *buffer = NULL;
+    int data_size = 0;
 
 public:
     Audio(PlayStatus *playStatus);
     ~Audio();
+
+    void play();
+
+    int resampleAudio();
 };
 
 

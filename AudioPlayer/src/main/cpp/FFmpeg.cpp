@@ -15,7 +15,7 @@ FFmpeg::~FFmpeg() {
 }
 
 void *decodeFFmpeg(void *data) {
-    FFmpeg *ffmpeg = (FFmpeg *) (data);
+    FFmpeg *ffmpeg = (FFmpeg *)data;
     ffmpeg->decodeFFmpegThread();
     pthread_exit(&ffmpeg->decodeThread);
 }
@@ -94,11 +94,23 @@ void FFmpeg::decodeFFmpegThread() {
     }
 
     callJava->onCallPrepared(CHILD_THREAD);
+}
+
+void FFmpeg::start() {
+
+    if (audio == NULL) {
+        if (LOG_DEBUG) {
+            LOGE("audio is null");
+        }
+        return;
+    }
+
+    audio->play();
 
     //解码音频流
     int count = 0;
-    while (1) {
-        AVPacket  *avPacket = av_packet_alloc();
+    while (playStatus != NULL && !playStatus->exit) {
+        AVPacket *avPacket = av_packet_alloc();
         if(av_read_frame(pFormatCtx, avPacket) == 0) {
             if(avPacket->stream_index == audio->streamIndex) {
                 count++;
@@ -115,16 +127,15 @@ void FFmpeg::decodeFFmpegThread() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
-            break;
+            while (playStatus != NULL && !playStatus->exit) {
+                if(audio->queue->getQueueSize() > 0) {
+                    continue;
+                } else {
+                    playStatus->exit = true;
+                    break;
+                }
+            }
         }
-    }
-
-    while (audio->queue->getQueueSize() > 0) {
-        AVPacket  *avPacket = av_packet_alloc();
-        audio->queue->getAvPacket(avPacket);
-        av_packet_free(&avPacket);
-        av_free(avPacket);
-        avPacket = NULL;
     }
 
     if(LOG_DEBUG) {

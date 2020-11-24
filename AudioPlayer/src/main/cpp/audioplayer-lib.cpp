@@ -4,6 +4,10 @@
 #include "CallJava.h"
 #include "FFmpeg.h"
 
+extern "C"{
+#include <libavformat/avformat.h>
+}
+
 JavaVM *javaVM = NULL;
 CallJava *callJava = NULL;
 FFmpeg *ffmpeg = NULL;
@@ -14,10 +18,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jint result = -1;
     javaVM = vm;
     JNIEnv *env;
-    if(vm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK) {
+    if(vm->GetEnv((void **)(&env), JNI_VERSION_1_4) != JNI_OK) {
         return result;
     }
-    return JNI_VERSION_1_6;
+    return JNI_VERSION_1_4;
 }
 
 extern "C"
@@ -36,4 +40,10 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobje
     }
 
 //    env->ReleaseStringUTFChars(source, url);
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1start(JNIEnv *env, jobject thiz) {
+    if(ffmpeg != NULL) {
+        ffmpeg->start();
+    }
 }

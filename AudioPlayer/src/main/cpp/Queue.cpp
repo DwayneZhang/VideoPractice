@@ -21,11 +21,10 @@ int Queue::putAvPacket(AVPacket *packet) {
 
     queuePacket.push(packet);
     if(LOG_DEBUG) {
-        LOGD("put a AVPacket to queue, now the size is %d", queuePacket.size());
+//        LOGD("put a AVPacket to queue, now the size is %d", queuePacket.size());
     }
 
     pthread_cond_signal(&condPacket);
-
 
     pthread_mutex_unlock(&mutexPacket);
     return 0;
@@ -45,7 +44,8 @@ int Queue::getAvPacket(AVPacket *packet) {
             av_free(avPacket);
             avPacket = NULL;
             if(LOG_DEBUG) {
-                LOGD("pop a AVPacket from queue, now the size is %d", queuePacket.size());
+//                LOGD("pop a AVPacket from queue, now the size is %d", queuePacket.size());
+//                LOGD("packet->size is %d", packet->size);
             }
             break;
         } else {

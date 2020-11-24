@@ -6,6 +6,7 @@
 #define AUDIO_PRACTICE_CALLJAVA_H
 
 #include "jni.h"
+#include <linux/stddef.h>
 #include "androidlog.h"
 
 #define MAIN_THREAD 0

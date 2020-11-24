@@ -10,9 +10,9 @@
 #include "androidlog.h"
 #include "PlayStatus.h"
 
-extern "C" {
+extern "C"{
 #include "libavcodec/avcodec.h"
-};
+}
 
 class Queue {
 
@@ -24,10 +24,13 @@ public:
 
 public:
     Queue(PlayStatus *playStatus);
+
     ~Queue();
 
     int putAvPacket(AVPacket *packet);
+
     int getAvPacket(AVPacket *packet);
+
     int getQueueSize();
 
 };

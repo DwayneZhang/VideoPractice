@@ -56,6 +56,20 @@ public class AudioPlayer {
         }).start();
     }
 
+    public void start() {
+        if(TextUtils.isEmpty(source)) {
+            LogUtil.d("source not be empty!");
+            return;
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                n_start();
+            }
+        }).start();
+    }
+
     /**
      * 给jni层调用
      */
@@ -66,4 +80,5 @@ public class AudioPlayer {
     }
 
     private native void n_prepare(String  source);
+    private native void n_start();
 }
