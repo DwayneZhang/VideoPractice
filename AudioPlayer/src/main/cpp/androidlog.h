@@ -2,10 +2,10 @@
 // Created by Dwayne on 20/11/22.
 //
 
-#ifndef JNI_THREAD_ANDROIDLOG_H
-#define JNI_THREAD_ANDROIDLOG_H
+#ifndef AUDIO_PRACTICE_ANDROIDLOG_H
+#define AUDIO_PRACTICE_ANDROIDLOG_H
 
-#endif //JNI_THREAD_ANDROIDLOG_H
+#endif //AUDIO_PRACTICE_ANDROIDLOG_H
 
 #include "android/log.h"
 

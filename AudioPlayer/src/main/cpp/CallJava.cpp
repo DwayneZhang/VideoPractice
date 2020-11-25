@@ -33,8 +33,8 @@ void CallJava::onCallPrepared(int threadType) {
         if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
             if(LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
-                return;
             }
+            return;
         }
         jniEnv->CallVoidMethod(jobj, jmid_prepared);
         javaVM->DetachCurrentThread();

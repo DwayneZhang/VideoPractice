@@ -85,7 +85,7 @@ int Audio::resampleAudio() {
                     swr_ctx,
                     &buffer,
                     avFrame->nb_samples,
-                    reinterpret_cast<const uint8_t **>(avFrame->data),
+                    (const uint8_t **)avFrame->data,
                     avFrame->nb_samples);
 
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
