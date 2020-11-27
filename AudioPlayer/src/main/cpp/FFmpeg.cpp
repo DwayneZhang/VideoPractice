@@ -182,15 +182,10 @@ void FFmpeg::resume() {
 
 void FFmpeg::release() {
     if(playStatus->exit) {
-        LOGE("000000000000");
         return;
     }
-    LOGE("111111111");
     playStatus->exit = true;
-    LOGE("222222222");
-    LOGE("ffmpeg exit :%d", exit);
     pthread_mutex_lock(&init_mutex);
-    LOGE("33333333333");
     int sleepCount = 0;
     while (!exit) {
         if(sleepCount > 1000) {
@@ -224,5 +219,4 @@ void FFmpeg::release() {
     }
 
     pthread_mutex_unlock(&init_mutex);
-    LOGE("444444444");
 }
