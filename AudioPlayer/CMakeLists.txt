@@ -81,4 +81,5 @@ target_link_libraries(audioplayer-lib
         swresample-2
         swscale-4
         postproc-54
-        ${log-lib})
+        ${log-lib}
+        OpenSLES)

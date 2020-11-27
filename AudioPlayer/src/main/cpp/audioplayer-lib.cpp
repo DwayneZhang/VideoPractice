@@ -5,7 +5,7 @@
 #include "FFmpeg.h"
 
 extern "C"{
-#include <libavformat/avformat.h>
+#include "libavformat/avformat.h"
 }
 
 JavaVM *javaVM = NULL;

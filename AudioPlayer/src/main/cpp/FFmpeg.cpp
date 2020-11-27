@@ -54,7 +54,7 @@ void FFmpeg::decodeFFmpegThread() {
         //获取音频流
         if(pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if(audio == NULL) {
-                audio = new Audio(playStatus);
+                audio = new Audio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate);
                 audio->streamIndex = i;
                 audio->codecpar =  pFormatCtx->streams[i]->codecpar;
             }
