@@ -21,12 +21,24 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.d("open success");
             audioPlayer.start();
         });
+        audioPlayer.setOnLoadListener((load) -> LogUtil.d(load ? "loading" : "playing"));
+        audioPlayer.setOnPauseResumeListener((pause -> LogUtil.d(pause ? "pause" : "resume")));
     }
 
 
     public void begin(View view) {
 //        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
-        audioPlayer.setSource("http://www.170mv.com/kw/antiserver.kuwo.cn/anti.s?rid=MUSIC_90991360&response=res&format=mp3|aac&type=convert_url&br=128kmp3&agent=iPhone&callback=getlink&jpcallback");
+        audioPlayer.setSource("http://www.170mv.com/kw/antiserver.kuwo.cn/anti" +
+                ".s?rid=MUSIC_90991360&response=res&format=mp3|aac&type=convert_url&br" +
+                "=128kmp3&agent=iPhone&callback=getlink&jpcallback");
         audioPlayer.prepare();
+    }
+
+    public void pause(View view) {
+        audioPlayer.pause();
+    }
+
+    public void resume(View view) {
+        audioPlayer.resume();
     }
 }

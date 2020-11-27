@@ -40,10 +40,28 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobje
     }
 
 //    env->ReleaseStringUTFChars(source, url);
-}extern "C"
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1start(JNIEnv *env, jobject thiz) {
     if(ffmpeg != NULL) {
         ffmpeg->start();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1pause(JNIEnv *env, jobject thiz) {
+    if(ffmpeg != NULL) {
+        ffmpeg->pause();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1resume(JNIEnv *env, jobject thiz) {
+    if(ffmpeg != NULL) {
+        ffmpeg->resume();
     }
 }

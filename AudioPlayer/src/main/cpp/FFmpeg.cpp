@@ -54,7 +54,7 @@ void FFmpeg::decodeFFmpegThread() {
         //获取音频流
         if(pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if(audio == NULL) {
-                audio = new Audio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate);
+                audio = new Audio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
                 audio->streamIndex = i;
                 audio->codecpar =  pFormatCtx->streams[i]->codecpar;
             }
@@ -114,9 +114,9 @@ void FFmpeg::start() {
         if(av_read_frame(pFormatCtx, avPacket) == 0) {
             if(avPacket->stream_index == audio->streamIndex) {
                 count++;
-                if(LOG_DEBUG) {
-                    LOGD("decoded %d frame", count);
-                }
+//                if(LOG_DEBUG) {
+//                    LOGD("decoded %d frame", count);
+//                }
                 audio->queue->putAvPacket(avPacket);
             } else {
                 av_packet_free(&avPacket);
@@ -140,5 +140,17 @@ void FFmpeg::start() {
 
     if(LOG_DEBUG) {
         LOGD("decoded completed");
+    }
+}
+
+void FFmpeg::pause() {
+    if(audio != NULL) {
+        audio->pause();
+    }
+}
+
+void FFmpeg::resume() {
+    if(audio != NULL) {
+        audio->resume();
     }
 }

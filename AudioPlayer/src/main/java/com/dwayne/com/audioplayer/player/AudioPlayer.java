@@ -2,6 +2,8 @@ package com.dwayne.com.audioplayer.player;
 
 import android.text.TextUtils;
 
+import com.dwayne.com.audioplayer.listener.OnLoadListener;
+import com.dwayne.com.audioplayer.listener.OnPauseResumeListener;
 import com.dwayne.com.audioplayer.listener.OnPreparedListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
 
@@ -30,6 +32,8 @@ public class AudioPlayer {
 
     private String source;
     private OnPreparedListener onPreparedListener;
+    private OnLoadListener onLoadListener;
+    private OnPauseResumeListener onPauseResumeListener;
 
     public AudioPlayer() {
     }
@@ -42,12 +46,20 @@ public class AudioPlayer {
         this.onPreparedListener = onPreparedListener;
     }
 
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
+    }
+
+    public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
+        this.onPauseResumeListener = onPauseResumeListener;
+    }
+
     public void prepare() {
         if(TextUtils.isEmpty(source)) {
             LogUtil.d("source not be empty!");
             return;
         }
-
+        onCallLoad(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -70,6 +82,20 @@ public class AudioPlayer {
         }).start();
     }
 
+    public void pause() {
+        n_pause();
+        if(onPauseResumeListener != null) {
+            onPauseResumeListener.onPause(true);
+        }
+    }
+
+    public void resume() {
+        n_resume();
+        if(onPauseResumeListener != null) {
+            onPauseResumeListener.onPause(false);
+        }
+    }
+
     /**
      * 给jni层调用
      */
@@ -79,6 +105,15 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallLoad(boolean load) {
+        if(onLoadListener != null){
+            onLoadListener.onLoad(load);
+        }
+    }
+
     private native void n_prepare(String  source);
     private native void n_start();
+    private native void n_pause();
+    private native void n_resume();
+
 }

@@ -33,6 +33,10 @@ public:
 
     void start();
 
+    void pause();
+
+    void resume();
+
 };
 
 

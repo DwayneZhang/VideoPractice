@@ -8,6 +8,7 @@
 
 #include "Queue.h"
 #include "PlayStatus.h"
+#include "CallJava.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 
@@ -24,6 +25,8 @@ public:
     AVCodecContext *avCodecContext = NULL;
     Queue *queue = NULL;
     PlayStatus *playStatus = NULL;
+    CallJava *callJava = NULL;
+
     pthread_t thread_play;
     AVPacket *avPacket = NULL;
     AVFrame *avFrame = NULL;
@@ -49,7 +52,7 @@ public:
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 
 public:
-    Audio(PlayStatus *playStatus, int sample_rate);
+    Audio(PlayStatus *playStatus, int sample_rate, CallJava *callJava);
     ~Audio();
 
     void play();
@@ -59,6 +62,10 @@ public:
     void initOpenSLES();
 
     int getCurrentSampleRateForOpensles(int sample_rate);
+
+    void pause();
+
+    void resume();
 };
 
 

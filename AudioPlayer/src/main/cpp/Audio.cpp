@@ -4,11 +4,12 @@
 
 #include "Audio.h"
 
-Audio::Audio(PlayStatus *playStatus, int sample_rate) {
+Audio::Audio(PlayStatus *playStatus, int sample_rate, CallJava *callJava) {
     this->playStatus = playStatus;
     this->sample_rate = sample_rate;
+    this->callJava = callJava;
     queue = new Queue(playStatus);
-    buffer = (uint8_t *) av_malloc(44100 * 2 * 2);
+    buffer = (uint8_t *) av_malloc(sample_rate * 2 * 2);
 }
 
 Audio::~Audio() {
@@ -28,6 +29,19 @@ void Audio::play() {
 int Audio::resampleAudio() {
 
     while (playStatus != NULL && !playStatus->exit) {
+        if(queue->getQueueSize() == 0) {
+            if(!playStatus->load) {
+                playStatus->load = true;
+                callJava->onCallLoad(CHILD_THREAD, true);
+            }
+            continue;
+        } else {
+            if(playStatus->load) {
+                playStatus->load = false;
+                callJava->onCallLoad(CHILD_THREAD, false);
+            }
+        }
+
         avPacket = av_packet_alloc();
         if (queue->getAvPacket(avPacket) != 0) {
             av_packet_free(&avPacket);
@@ -87,9 +101,9 @@ int Audio::resampleAudio() {
 
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
-            if (LOG_DEBUG) {
-                LOGE("data size is %d", data_size);
-            }
+//            if (LOG_DEBUG) {
+//                LOGE("data size is %d", data_size);
+//            }
 
             av_packet_free(&avPacket);
             av_free(avPacket);
@@ -236,4 +250,16 @@ int Audio::getCurrentSampleRateForOpensles(int sample_rate) {
             rate = SL_SAMPLINGRATE_44_1;
     }
     return rate;
+}
+
+void Audio::pause() {
+    if(pcmPlayerObject != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void Audio::resume() {
+    if(pcmPlayerObject != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
 }

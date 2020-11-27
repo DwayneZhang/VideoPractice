@@ -12,4 +12,16 @@
         android:layout_height="wrap_content"
         android:onClick="begin"
         android:text="开始" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="pause"
+        android:text="暂停" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="resume"
+        android:text="播放" />
 </LinearLayout>
