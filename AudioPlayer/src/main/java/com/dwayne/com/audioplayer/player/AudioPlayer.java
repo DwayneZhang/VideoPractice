@@ -2,9 +2,11 @@ package com.dwayne.com.audioplayer.player;
 
 import android.text.TextUtils;
 
+import com.dwayne.com.audioplayer.TimeInfoBean;
 import com.dwayne.com.audioplayer.listener.OnLoadListener;
 import com.dwayne.com.audioplayer.listener.OnPauseResumeListener;
 import com.dwayne.com.audioplayer.listener.OnPreparedListener;
+import com.dwayne.com.audioplayer.listener.OnTimeInfoListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
 
 /**
@@ -34,6 +36,8 @@ public class AudioPlayer {
     private OnPreparedListener onPreparedListener;
     private OnLoadListener onLoadListener;
     private OnPauseResumeListener onPauseResumeListener;
+    private OnTimeInfoListener onTimeInfoListener;
+    private static TimeInfoBean timeInfoBean;
 
     public AudioPlayer() {
     }
@@ -52,6 +56,10 @@ public class AudioPlayer {
 
     public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
         this.onPauseResumeListener = onPauseResumeListener;
+    }
+
+    public void setOnTimeInfoListener(OnTimeInfoListener onTimeInfoListener) {
+        this.onTimeInfoListener = onTimeInfoListener;
     }
 
     public void prepare() {
@@ -108,6 +116,17 @@ public class AudioPlayer {
     public void onCallLoad(boolean load) {
         if(onLoadListener != null){
             onLoadListener.onLoad(load);
+        }
+    }
+
+    public void onTimeInfo(int currentTime, int totalTime) {
+        if(onTimeInfoListener != null) {
+            if(timeInfoBean == null) {
+                timeInfoBean = new TimeInfoBean();
+            }
+            timeInfoBean.setCurrentTime(currentTime);
+            timeInfoBean.setTotalTime(totalTime);
+            onTimeInfoListener.onTimeInfo(timeInfoBean);
         }
     }
 

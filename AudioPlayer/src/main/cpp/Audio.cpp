@@ -29,14 +29,14 @@ void Audio::play() {
 int Audio::resampleAudio() {
 
     while (playStatus != NULL && !playStatus->exit) {
-        if(queue->getQueueSize() == 0) {
-            if(!playStatus->load) {
+        if (queue->getQueueSize() == 0) {
+            if (!playStatus->load) {
                 playStatus->load = true;
                 callJava->onCallLoad(CHILD_THREAD, true);
             }
             continue;
         } else {
-            if(playStatus->load) {
+            if (playStatus->load) {
                 playStatus->load = false;
                 callJava->onCallLoad(CHILD_THREAD, false);
             }
@@ -105,6 +105,12 @@ int Audio::resampleAudio() {
 //                LOGE("data size is %d", data_size);
 //            }
 
+            now_time = avFrame->pts * av_q2d(time_base);
+            if (now_time < clock) {
+                now_time = clock;
+            }
+            clock = now_time;
+
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -135,8 +141,14 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     if (audio != NULL) {
         int buffersize = audio->resampleAudio();
         if (buffersize > 0) {
+            audio->clock += buffersize / (double) (audio->sample_rate * 2 * 2);
+            if(audio->clock - audio->last_time >= 0.1) {
+                audio->last_time = audio->clock;
+                audio->callJava->onCallTimeInfo(CHILD_THREAD, audio->clock, audio->duration);
+            }
             (*audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,
-                                              (char *) audio->buffer, buffersize);
+                                              (char *) audio->buffer,
+                                              buffersize);
         }
     }
 }
@@ -253,13 +265,13 @@ int Audio::getCurrentSampleRateForOpensles(int sample_rate) {
 }
 
 void Audio::pause() {
-    if(pcmPlayerObject != NULL) {
+    if (pcmPlayerObject != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
 
 void Audio::resume() {
-    if(pcmPlayerObject != NULL) {
+    if (pcmPlayerObject != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     }
 }

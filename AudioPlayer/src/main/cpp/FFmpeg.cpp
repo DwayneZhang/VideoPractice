@@ -57,6 +57,8 @@ void FFmpeg::decodeFFmpegThread() {
                 audio = new Audio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
                 audio->streamIndex = i;
                 audio->codecpar =  pFormatCtx->streams[i]->codecpar;
+                audio->duration = pFormatCtx->duration/AV_TIME_BASE;
+                audio->time_base = pFormatCtx->streams[i]->time_base;
             }
         }
     }
