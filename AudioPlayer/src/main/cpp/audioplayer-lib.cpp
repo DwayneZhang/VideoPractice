@@ -65,3 +65,21 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1resume(JNIEnv *env, jobjec
         ffmpeg->resume();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject thiz) {
+    if(ffmpeg != NULL) {
+        ffmpeg->release();
+        delete (ffmpeg);
+        ffmpeg = NULL;
+        if (callJava != NULL) {
+            delete (callJava);
+            callJava = NULL;
+        }
+        if (playStatus != NULL) {
+            delete (playStatus);
+            playStatus = NULL;
+        }
+    }
+}

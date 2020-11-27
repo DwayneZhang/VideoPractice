@@ -68,12 +68,7 @@ public class AudioPlayer {
             return;
         }
         onCallLoad(true);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                n_prepare(source);
-            }
-        }).start();
+        new Thread(() -> n_prepare(source)).start();
     }
 
     public void start() {
@@ -82,12 +77,7 @@ public class AudioPlayer {
             return;
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                n_start();
-            }
-        }).start();
+        new Thread(() -> n_start()).start();
     }
 
     public void pause() {
@@ -102,6 +92,10 @@ public class AudioPlayer {
         if(onPauseResumeListener != null) {
             onPauseResumeListener.onPause(false);
         }
+    }
+
+    public void stop() {
+        new Thread(() -> n_stop()).start();
     }
 
     /**
@@ -134,5 +128,6 @@ public class AudioPlayer {
     private native void n_start();
     private native void n_pause();
     private native void n_resume();
+    private native void n_stop();
 
 }

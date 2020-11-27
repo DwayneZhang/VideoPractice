@@ -9,3 +9,7 @@ PlayStatus::PlayStatus() {
     exit = false;
 
 }
+
+PlayStatus::~PlayStatus() {
+
+}

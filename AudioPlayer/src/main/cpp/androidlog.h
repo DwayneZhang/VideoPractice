@@ -11,6 +11,6 @@
 
 #define LOG_DEBUG true
 
-#define LOGD(FORMAT,...) __android_log_print(ANDROID_LOG_DEBUG, "TAG", FORMAT, ##__VA_ARGS__);
+#define LOGD(FORMAT,...) __android_log_print(ANDROID_LOG_DEBUG, "DZ", FORMAT, ##__VA_ARGS__);
 
-#define LOGE(FORMAT,...) __android_log_print(ANDROID_LOG_ERROR, "TAG", FORMAT, ##__VA_ARGS__);
+#define LOGE(FORMAT,...) __android_log_print(ANDROID_LOG_ERROR, "DZ", FORMAT, ##__VA_ARGS__);

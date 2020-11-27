@@ -68,4 +68,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    public void stop(View view) {
+        audioPlayer.stop();
+    }
 }

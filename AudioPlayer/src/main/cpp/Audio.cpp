@@ -275,3 +275,55 @@ void Audio::resume() {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     }
 }
+
+void Audio::stop() {
+    if (pcmPlayerObject != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_STOPPED);
+    }
+}
+
+void Audio::release() {
+    stop();
+    if (queue != NULL) {
+        delete queue;
+        queue = NULL;
+    }
+
+    if(pcmPlayerObject != NULL) {
+        (*pcmPlayerObject)->Destroy(pcmPlayerObject);
+        pcmPlayerObject = NULL;
+        pcmPlayerPlay = NULL;
+        pcmBufferQueue = NULL;
+    }
+
+    if (outputMixObject != NULL) {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentalReverb = NULL;
+    }
+
+    if(engineObject != NULL) {
+        (*engineObject)->Destroy(engineObject);
+        engineObject = NULL;
+        engineEngine = NULL;
+    }
+
+    if(buffer != NULL) {
+        free(buffer);
+        buffer = NULL;
+    }
+
+    if (avCodecContext != NULL) {
+        avcodec_close(avCodecContext);
+        avcodec_free_context(&avCodecContext);
+        avCodecContext = NULL;
+    }
+
+    if(playStatus != NULL) {
+        playStatus = NULL;
+    }
+
+    if(callJava != NULL) {
+        callJava = NULL;
+    }
+}
