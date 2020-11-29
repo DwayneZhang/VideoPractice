@@ -20,4 +20,10 @@ public class LogUtil {
         if(!BuildConfig.DEBUG) return;
         Log.d("DZ", msg);
     }
+
+    public static void e(String msg) {
+
+        if(!BuildConfig.DEBUG) return;
+        Log.e("DZ", msg);
+    }
 }

@@ -51,6 +51,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not open url");
         }
+        callJava->onCallError(CHILD_THREAD, 1001, "can not open url");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -61,6 +62,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not find streams form url");
         }
+        callJava->onCallError(CHILD_THREAD, 1002, "can not find streams form url");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -84,6 +86,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not find decoder");
         }
+        callJava->onCallError(CHILD_THREAD, 1003, "can not find decoder");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -95,6 +98,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not find decoderCtx");
         }
+        callJava->onCallError(CHILD_THREAD, 1004, "can not find decoderCtx");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -103,6 +107,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not fill decoderCtx");
         }
+        callJava->onCallError(CHILD_THREAD, 1005, "can not fill decoderCtx");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -113,6 +118,7 @@ void FFmpeg::decodeFFmpegThread() {
         if(LOG_DEBUG) {
             LOGE("can not open stream");
         }
+        callJava->onCallError(CHILD_THREAD, 1006, "can not open stream");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;

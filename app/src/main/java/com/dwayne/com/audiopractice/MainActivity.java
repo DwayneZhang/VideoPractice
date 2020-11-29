@@ -37,14 +37,15 @@ public class MainActivity extends AppCompatActivity {
             message.obj = timeInfoBean;
             handler.sendMessage(message);
         });
+        audioPlayer.setOnErrorListener((code, msg)-> LogUtil.e(String.format("error code:%d, msg:%s", code, msg)));
     }
 
 
     public void begin(View view) {
-//        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
-        audioPlayer.setSource("http://www.170mv.com/kw/antiserver.kuwo.cn/anti" +
-                ".s?rid=MUSIC_90991360&response=res&format=mp3|aac&type=convert_url&br" +
-                "=128kmp3&agent=iPhone&callback=getlink&jpcallback");
+        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
+//        audioPlayer.setSource("http://www.170mv.com/kw/antiserver.kuwo.cn/anti" +
+//                ".s?rid=MUSIC_90991360&response=res&format=mp3|aac&type=convert_url&br" +
+//                "=128kmp3&agent=iPhone&callback=getlink&jpcallback");
         audioPlayer.prepare();
     }
 

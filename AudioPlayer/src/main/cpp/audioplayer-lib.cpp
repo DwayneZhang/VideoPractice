@@ -13,6 +13,8 @@ CallJava *callJava = NULL;
 FFmpeg *ffmpeg = NULL;
 PlayStatus *playStatus = NULL;
 
+bool nexit = true;
+
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jint result = -1;
@@ -34,6 +36,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobje
         if(callJava == NULL) {
             callJava = new CallJava(javaVM, env, &thiz);
         }
+        callJava->onCallLoad(MAIN_THREAD, true);
         playStatus = new PlayStatus;
         ffmpeg = new FFmpeg(playStatus, callJava, url);
         ffmpeg->perpare();
@@ -69,6 +72,10 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1resume(JNIEnv *env, jobjec
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject thiz) {
+    if (!nexit) {
+        return;
+    }
+    nexit = false;
     if(ffmpeg != NULL) {
         ffmpeg->release();
         delete (ffmpeg);
@@ -82,4 +89,5 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject 
             playStatus = NULL;
         }
     }
+    nexit = true;
 }

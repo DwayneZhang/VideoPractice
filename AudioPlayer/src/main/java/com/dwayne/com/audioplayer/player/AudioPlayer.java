@@ -3,6 +3,7 @@ package com.dwayne.com.audioplayer.player;
 import android.text.TextUtils;
 
 import com.dwayne.com.audioplayer.TimeInfoBean;
+import com.dwayne.com.audioplayer.listener.OnErrorListener;
 import com.dwayne.com.audioplayer.listener.OnLoadListener;
 import com.dwayne.com.audioplayer.listener.OnPauseResumeListener;
 import com.dwayne.com.audioplayer.listener.OnPreparedListener;
@@ -37,6 +38,7 @@ public class AudioPlayer {
     private OnLoadListener onLoadListener;
     private OnPauseResumeListener onPauseResumeListener;
     private OnTimeInfoListener onTimeInfoListener;
+    private OnErrorListener onErrorListener;
     private static TimeInfoBean timeInfoBean;
 
     public AudioPlayer() {
@@ -62,12 +64,15 @@ public class AudioPlayer {
         this.onTimeInfoListener = onTimeInfoListener;
     }
 
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
+    }
+
     public void prepare() {
         if(TextUtils.isEmpty(source)) {
             LogUtil.d("source not be empty!");
             return;
         }
-        onCallLoad(true);
         new Thread(() -> n_prepare(source)).start();
     }
 
@@ -121,6 +126,13 @@ public class AudioPlayer {
             timeInfoBean.setCurrentTime(currentTime);
             timeInfoBean.setTotalTime(totalTime);
             onTimeInfoListener.onTimeInfo(timeInfoBean);
+        }
+    }
+
+    public void onCallError(int code, String msg) {
+        stop();
+        if(onErrorListener != null) {
+            onErrorListener.onError(code, msg);
         }
     }
 
