@@ -3,6 +3,7 @@ package com.dwayne.com.audioplayer.player;
 import android.text.TextUtils;
 
 import com.dwayne.com.audioplayer.TimeInfoBean;
+import com.dwayne.com.audioplayer.listener.OnCompleteListener;
 import com.dwayne.com.audioplayer.listener.OnErrorListener;
 import com.dwayne.com.audioplayer.listener.OnLoadListener;
 import com.dwayne.com.audioplayer.listener.OnPauseResumeListener;
@@ -39,6 +40,7 @@ public class AudioPlayer {
     private OnPauseResumeListener onPauseResumeListener;
     private OnTimeInfoListener onTimeInfoListener;
     private OnErrorListener onErrorListener;
+    private OnCompleteListener onCompleteListener;
     private static TimeInfoBean timeInfoBean;
 
     public AudioPlayer() {
@@ -66,6 +68,10 @@ public class AudioPlayer {
 
     public void setOnErrorListener(OnErrorListener onErrorListener) {
         this.onErrorListener = onErrorListener;
+    }
+
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        this.onCompleteListener = onCompleteListener;
     }
 
     public void prepare() {
@@ -103,6 +109,10 @@ public class AudioPlayer {
         new Thread(() -> n_stop()).start();
     }
 
+    public void seek(int secds) {
+        n_seek(secds);
+    }
+
     /**
      * 给jni层调用
      */
@@ -136,10 +146,18 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallComplete() {
+        stop();
+        if(onCompleteListener != null) {
+            onCompleteListener.onComplete();
+        }
+    }
+
     private native void n_prepare(String  source);
     private native void n_start();
     private native void n_pause();
     private native void n_resume();
     private native void n_stop();
+    private native void n_seek(int secds);
 
 }

@@ -9,10 +9,12 @@ FFmpeg::FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url) {
     this->url = url;
     this->playStatus = playStatus;
     pthread_mutex_init(&init_mutex, NULL);
+    pthread_mutex_init(&seek_mutex, NULL);
 }
 
 FFmpeg::~FFmpeg() {
-
+    pthread_mutex_destroy(&init_mutex);
+    pthread_mutex_destroy(&seek_mutex);
 }
 
 void *decodeFFmpeg(void *data) {
@@ -76,6 +78,7 @@ void FFmpeg::decodeFFmpegThread() {
                 audio->codecpar =  pFormatCtx->streams[i]->codecpar;
                 audio->duration = pFormatCtx->duration/AV_TIME_BASE;
                 audio->time_base = pFormatCtx->streams[i]->time_base;
+                duration = audio->duration;
             }
         }
     }
@@ -141,8 +144,17 @@ void FFmpeg::start() {
     //解码音频流
     int count = 0;
     while (playStatus != NULL && !playStatus->exit) {
+        if(playStatus->seek) {
+            continue;
+        }
+        if (audio->queue->getQueueSize() > 40) {
+            continue;
+        }
         AVPacket *avPacket = av_packet_alloc();
-        if(av_read_frame(pFormatCtx, avPacket) == 0) {
+        pthread_mutex_lock(&seek_mutex);
+        int ret = av_read_frame(pFormatCtx, avPacket);
+        pthread_mutex_unlock(&seek_mutex);
+        if(ret == 0) {
             if(avPacket->stream_index == audio->streamIndex) {
                 count++;
 //                if(LOG_DEBUG) {
@@ -168,10 +180,10 @@ void FFmpeg::start() {
             }
         }
     }
-    exit = true;
-    if(LOG_DEBUG) {
-        LOGD("decoded completed");
+    if (callJava != NULL) {
+        callJava->onCallComplete(CHILD_THREAD);
     }
+    exit = true;
 }
 
 void FFmpeg::pause() {
@@ -187,9 +199,6 @@ void FFmpeg::resume() {
 }
 
 void FFmpeg::release() {
-    if(playStatus->exit) {
-        return;
-    }
     playStatus->exit = true;
     pthread_mutex_lock(&init_mutex);
     int sleepCount = 0;
@@ -225,4 +234,26 @@ void FFmpeg::release() {
     }
 
     pthread_mutex_unlock(&init_mutex);
+}
+
+void FFmpeg::seek(int64_t secds) {
+
+    if (duration <= 0) {
+        return;
+    }
+    if (secds >= 0 && secds <= duration) {
+        if (audio != NULL) {
+            playStatus->seek = true;
+            audio->queue->clearAVPacket();
+            audio->clock = 0;
+            audio->last_time = 0;
+
+            pthread_mutex_lock(&seek_mutex);
+            int64_t rel = secds * AV_TIME_BASE;
+            avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
+
+            pthread_mutex_unlock(&seek_mutex);
+            playStatus->seek = false;
+        }
+    }
 }

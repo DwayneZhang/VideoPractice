@@ -12,6 +12,7 @@ JavaVM *javaVM = NULL;
 CallJava *callJava = NULL;
 FFmpeg *ffmpeg = NULL;
 PlayStatus *playStatus = NULL;
+pthread_t thread_start;
 
 bool nexit = true;
 
@@ -45,11 +46,17 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobje
 //    env->ReleaseStringUTFChars(source, url);
 }
 
+void *startCallback(void *data){
+    FFmpeg *ffmpeg = (FFmpeg *) data;
+    ffmpeg->start();
+    pthread_exit(&thread_start);
+}
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1start(JNIEnv *env, jobject thiz) {
     if(ffmpeg != NULL) {
-        ffmpeg->start();
+        pthread_create(&thread_start, NULL, startCallback,ffmpeg);
     }
 }
 
@@ -90,4 +97,13 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject 
         }
     }
     nexit = true;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1seek(JNIEnv *env, jobject thiz,
+                                                           jint secds) {
+    if(ffmpeg != NULL) {
+        ffmpeg->seek(secds);
+    }
 }

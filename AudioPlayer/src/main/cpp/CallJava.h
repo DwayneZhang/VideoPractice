@@ -24,6 +24,7 @@ public:
     jmethodID  jmid_load;
     jmethodID  jmid_timeinfo;
     jmethodID  jmid_error;
+    jmethodID  jmid_complete;
 
 public:
     CallJava(JavaVM *vm, JNIEnv *env, jobject *obj);
@@ -36,6 +37,8 @@ public:
     void onCallTimeInfo(int threadType, int curr, int total);
 
     void onCallError(int threadType, int code, char *msg);
+
+    void onCallComplete(int threadType);
 
 };
 

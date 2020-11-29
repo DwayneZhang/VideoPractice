@@ -31,6 +31,12 @@
         android:onClick="resume"
         android:text="播放" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="seek"
+        android:text="Seek" />
+
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"

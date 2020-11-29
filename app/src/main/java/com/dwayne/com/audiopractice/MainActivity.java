@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
             handler.sendMessage(message);
         });
         audioPlayer.setOnErrorListener((code, msg)-> LogUtil.e(String.format("error code:%d, msg:%s", code, msg)));
+        audioPlayer.setOnCompleteListener(()->LogUtil.d("play complete"));
     }
 
 
@@ -72,5 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void stop(View view) {
         audioPlayer.stop();
+    }
+
+    public void seek(View view) {
+        audioPlayer.seek(195);
     }
 }
