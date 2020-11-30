@@ -34,7 +34,8 @@ public class AudioPlayer {
         System.loadLibrary("avdevice-57");
     }
 
-    private String source;
+    private static String source;
+    private static boolean playNext;
     private OnPreparedListener onPreparedListener;
     private OnLoadListener onLoadListener;
     private OnPauseResumeListener onPauseResumeListener;
@@ -106,11 +107,18 @@ public class AudioPlayer {
     }
 
     public void stop() {
+        timeInfoBean = null;
         new Thread(() -> n_stop()).start();
     }
 
     public void seek(int secds) {
         n_seek(secds);
+    }
+
+    public void playNext(String url) {
+        source = url;
+        playNext = true;
+        stop();
     }
 
     /**
@@ -150,6 +158,13 @@ public class AudioPlayer {
         stop();
         if(onCompleteListener != null) {
             onCompleteListener.onComplete();
+        }
+    }
+
+    public void onCallNext() {
+        if(playNext) {
+            playNext = false;
+            prepare();
         }
     }
 

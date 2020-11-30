@@ -82,6 +82,10 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject 
     if (!nexit) {
         return;
     }
+
+    jclass jlz = env->GetObjectClass(thiz);
+    jmethodID jmid_next = env->GetMethodID(jlz, "onCallNext", "()V");
+
     nexit = false;
     if(ffmpeg != NULL) {
         ffmpeg->release();
@@ -97,6 +101,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject 
         }
     }
     nexit = true;
+    env->CallVoidMethod(thiz, jmid_next);
 }
 
 extern "C"
