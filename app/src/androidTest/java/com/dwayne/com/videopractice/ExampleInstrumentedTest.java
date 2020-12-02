@@ -1,4 +1,4 @@
-package com.dwayne.com.audiopractice;
+package com.dwayne.com.videopractice;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.dwayne.com.audiopractice", appContext.getPackageName());
+        assertEquals("com.dwayne.com.videopractice", appContext.getPackageName());
     }
 }

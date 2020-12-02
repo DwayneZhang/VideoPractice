@@ -1,2 +1,2 @@
-### FFmpeg+OpenSL实现音频播放器
+### FFmpeg+OpenGL ES+OpenSL ES实现Android视频播放器
 

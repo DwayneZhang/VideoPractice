@@ -1,4 +1,4 @@
-package com.dwayne.com.audiopractice;
+package com.dwayne.com.videopractice;
 
 import android.os.Bundle;
 import android.os.Handler;
