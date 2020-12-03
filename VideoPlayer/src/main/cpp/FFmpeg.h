@@ -8,6 +8,7 @@
 #include "CallJava.h"
 #include "pthread.h"
 #include "Audio.h"
+#include "Video.h"
 
 extern "C" {
 #include "libavformat/avformat.h"
@@ -22,6 +23,7 @@ public:
     pthread_t decodeThread;
     AVFormatContext  *pFormatCtx = NULL;
     Audio *audio = NULL;
+    Video *video = NULL;
     PlayStatus *playStatus = NULL;
     pthread_mutex_t  init_mutex;
     bool exit = false;
@@ -45,6 +47,8 @@ public:
     void release();
 
     void seek(int64_t secds);
+
+    int getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecContext);
 };
 
 

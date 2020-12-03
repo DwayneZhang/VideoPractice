@@ -12,7 +12,8 @@ add_library(audioplayer-lib SHARED
         src/main/cpp/FFmpeg.cpp
         src/main/cpp/Audio.cpp
         src/main/cpp/PlayStatus.cpp
-        src/main/cpp/Queue.cpp)
+        src/main/cpp/Queue.cpp
+        src/main/cpp/Video.cpp)
 
 add_library( avcodec-57
         SHARED

@@ -29,11 +29,18 @@ void Audio::play() {
 int Audio::resampleAudio() {
 
     while (playStatus != NULL && !playStatus->exit) {
+
+        if(playStatus->seek) {
+            av_usleep(1000*100);
+            continue;
+        }
+
         if (queue->getQueueSize() == 0) {
             if (!playStatus->load) {
                 playStatus->load = true;
                 callJava->onCallLoad(CHILD_THREAD, true);
             }
+            av_usleep(1000*100);
             continue;
         } else {
             if (playStatus->load) {
@@ -161,9 +168,9 @@ void Audio::initOpenSLES() {
     result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
 
     //第二步，创建混音器
-    const SLInterfaceID mids[1] = {SL_IID_ENVIRONMENTALREVERB};
-    const SLboolean mreq[1] = {SL_BOOLEAN_FALSE};
-    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, mids,
+    const SLInterfaceID mids[2] = {SL_IID_ENVIRONMENTALREVERB, SL_IID_PLAYBACKRATE};
+    const SLboolean mreq[2] = {SL_BOOLEAN_FALSE, SL_BOOLEAN_FALSE};
+    result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 2, mids,
                                               mreq);
     (void) result;
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
