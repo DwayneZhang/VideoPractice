@@ -206,8 +206,14 @@ void FFmpeg::release() {
 
     if (audio != NULL) {
         audio->release();
-        delete (audio);
+        delete audio;
         audio = NULL;
+    }
+
+    if (video != NULL) {
+        video->release();
+        delete video;
+        video = NULL;
     }
 
     if (pFormatCtx != NULL) {

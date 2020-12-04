@@ -10,6 +10,7 @@
 
 extern "C" {
 #include "libavcodec/avcodec.h"
+#include "libavutil/time.h"
 }
 
 class Video {
@@ -30,6 +31,8 @@ public:
     ~Video();
 
     void play();
+
+    void release();
 };
 
 
