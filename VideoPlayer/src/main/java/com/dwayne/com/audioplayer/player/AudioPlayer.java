@@ -168,6 +168,10 @@ public class AudioPlayer {
         }
     }
 
+    public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
+        LogUtil.d("onCallRenderYUV size:" + width * height);
+    }
+
     private native void n_prepare(String  source);
     private native void n_start();
     private native void n_pause();

@@ -25,6 +25,7 @@ public:
     jmethodID  jmid_timeinfo;
     jmethodID  jmid_error;
     jmethodID  jmid_complete;
+    jmethodID  jmid_renderyuv;
 
 public:
     CallJava(JavaVM *vm, JNIEnv *env, jobject *obj);
@@ -39,6 +40,9 @@ public:
     void onCallError(int threadType, int code, char *msg);
 
     void onCallComplete(int threadType);
+
+    void onCallRenderYUV(int threadType, int width, int height, uint8_t *fy,
+                         uint8_t *fu, uint8_t *fv);
 
 };
 
