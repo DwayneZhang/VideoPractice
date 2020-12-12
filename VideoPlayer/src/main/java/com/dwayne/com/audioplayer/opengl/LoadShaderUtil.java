@@ -53,27 +53,41 @@ public class LoadShaderUtil {
     }
 
     public static int createProgram(String vertexSource, String fragmentSource) {
+        // 加载顶点着色器
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
         if(vertexShader == 0) {
             return 0;
         }
+        // 加载片元着色器
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource);
         if(fragmentShader == 0) {
             return 0;
         }
+        // 创建着色器程序
         int program = GLES20.glCreateProgram();
+        // 若程序创建成功则向程序中加入顶点着色器与片元着色器
         if(program != 0) {
+            // 向程序中加入顶点着色器
             GLES20.glAttachShader(program, vertexShader);
+            // 向程序中加入片元着色器
             GLES20.glAttachShader(program, fragmentShader);
+            // 链接程序
             GLES20.glLinkProgram(program);
+            // 存放链接成功program数量的数组
             int[] linsStatus = new int[1];
+            // 获取program的链接情况
             GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linsStatus, 0);
+            // 若链接失败则报错并删除程序
             if(linsStatus[0] != GLES20.GL_TRUE) {
                 LogUtil.d("link program error");
                 GLES20.glDeleteProgram(program);
                 program = 0;
             }
         }
+
+        // 释放shader资源
+        GLES20.glDeleteShader(vertexShader );
+        GLES20.glDeleteShader(fragmentShader);
         return program;
 
     }

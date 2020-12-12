@@ -130,16 +130,22 @@ public class MyRender implements GLSurfaceView.Renderer {
 
     private void renderYUV() {
         if(width_yuv > 0 && height_yuv > 0 && y != null && u != null && v != null) {
+            // 使用shader程序
             GLES20.glUseProgram(program_yuv);
 
+            // 允许使用顶点坐标数组
             GLES20.glEnableVertexAttribArray(avPosition_yuv);
+            // 顶点位置数据传入着色器
             GLES20.glVertexAttribPointer(avPosition_yuv, 2, GLES20.GL_FLOAT, false, 8,
                     vertexBuffer);
 
+            // 允许使用纹理坐标数组
             GLES20.glEnableVertexAttribArray(afPosition_yuv);
+            // 纹理位置数据传入着色器
             GLES20.glVertexAttribPointer(afPosition_yuv, 2, GLES20.GL_FLOAT, false, 8,
                     textureBuffer);
 
+            // 绑定纹理
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId_yuv[0]);
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, width_yuv
@@ -168,6 +174,7 @@ public class MyRender implements GLSurfaceView.Renderer {
             u = null;
             v = null;
 
+            // 图形绘制
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         }
     }
