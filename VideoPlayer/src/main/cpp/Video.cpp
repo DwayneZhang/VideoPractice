@@ -63,7 +63,6 @@ void *playVideoCallBack(void *data) {
             continue;
         }
         LOGD("decoded avFrame success");
-             video->avCodecContext->width, video->avCodecContext->height);
         if (avFrame->format == AV_PIX_FMT_YUV420P) {
             video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
                                              video->avCodecContext->height,

@@ -11,49 +11,54 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.dwayne.com.audioplayer.TimeInfoBean;
 import com.dwayne.com.audioplayer.log.LogUtil;
-import com.dwayne.com.audioplayer.player.AudioPlayer;
+import com.dwayne.com.audioplayer.opengl.MyGLSurfaceView;
+import com.dwayne.com.audioplayer.player.VideoPlayer;
 import com.dwayne.com.audioplayer.util.TimeUtil;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AudioPlayer audioPlayer;
+    private VideoPlayer videoPlayer;
     private TextView tvTime;
+    private MyGLSurfaceView myGLSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvTime = findViewById(R.id.tv_time);
-        audioPlayer = new AudioPlayer();
-        audioPlayer.setOnPreparedListener(() -> {
+        myGLSurfaceView = findViewById(R.id.gl_surface_view);
+
+        videoPlayer = new VideoPlayer();
+        videoPlayer.setMyGLSurfaceView(myGLSurfaceView);
+        videoPlayer.setOnPreparedListener(() -> {
             LogUtil.d("open success");
-            audioPlayer.start();
+            videoPlayer.start();
         });
-        audioPlayer.setOnLoadListener(load -> LogUtil.d(load ? "loading" : "playing"));
-        audioPlayer.setOnPauseResumeListener(pause -> LogUtil.d(pause ? "pause" : "resume"));
-        audioPlayer.setOnTimeInfoListener(timeInfoBean -> {
+        videoPlayer.setOnLoadListener(load -> LogUtil.d(load ? "loading" : "playing"));
+        videoPlayer.setOnPauseResumeListener(pause -> LogUtil.d(pause ? "pause" : "resume"));
+        videoPlayer.setOnTimeInfoListener(timeInfoBean -> {
             Message message = Message.obtain();
             message.what = 1;
             message.obj = timeInfoBean;
             handler.sendMessage(message);
         });
-        audioPlayer.setOnErrorListener((code, msg)-> LogUtil.e(String.format("error code:%d, msg:%s", code, msg)));
-        audioPlayer.setOnCompleteListener(()->LogUtil.d("play complete"));
+        videoPlayer.setOnErrorListener((code, msg)-> LogUtil.e(String.format("error code:%d, msg:%s", code, msg)));
+        videoPlayer.setOnCompleteListener(()->LogUtil.d("play complete"));
     }
 
 
     public void begin(View view) {
 //        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
-        audioPlayer.setSource("/sdcard/Download/video.mp4");
-        audioPlayer.prepare();
+        videoPlayer.setSource("/sdcard/Download/夺冠.mp4");
+        videoPlayer.prepare();
     }
 
     public void pause(View view) {
-        audioPlayer.pause();
+        videoPlayer.pause();
     }
 
     public void resume(View view) {
-        audioPlayer.resume();
+        videoPlayer.resume();
     }
 
     Handler handler = new Handler() {
@@ -70,11 +75,11 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void stop(View view) {
-        audioPlayer.stop();
+        videoPlayer.stop();
     }
 
     public void seek(View view) {
-        audioPlayer.seek(195);
+        videoPlayer.seek(195);
     }
 
     public void next(View view) {

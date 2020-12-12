@@ -10,6 +10,7 @@ import com.dwayne.com.audioplayer.listener.OnPauseResumeListener;
 import com.dwayne.com.audioplayer.listener.OnPreparedListener;
 import com.dwayne.com.audioplayer.listener.OnTimeInfoListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
+import com.dwayne.com.audioplayer.opengl.MyGLSurfaceView;
 
 /**
  * @author Dwayne
@@ -20,7 +21,7 @@ import com.dwayne.com.audioplayer.log.LogUtil;
  * @class describe
  */
 
-public class AudioPlayer {
+public class VideoPlayer {
 
     static {
         System.loadLibrary("audioplayer-lib");
@@ -43,8 +44,9 @@ public class AudioPlayer {
     private OnErrorListener onErrorListener;
     private OnCompleteListener onCompleteListener;
     private static TimeInfoBean timeInfoBean;
+    private MyGLSurfaceView myGLSurfaceView;
 
-    public AudioPlayer() {
+    public VideoPlayer() {
     }
 
     public void setSource(String source) {
@@ -73,6 +75,10 @@ public class AudioPlayer {
 
     public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
         this.onCompleteListener = onCompleteListener;
+    }
+
+    public void setMyGLSurfaceView(MyGLSurfaceView myGLSurfaceView) {
+        this.myGLSurfaceView = myGLSurfaceView;
     }
 
     public void prepare() {
@@ -131,7 +137,7 @@ public class AudioPlayer {
     }
 
     public void onCallLoad(boolean load) {
-        if(onLoadListener != null){
+        if(onLoadListener != null) {
             onLoadListener.onLoad(load);
         }
     }
@@ -169,14 +175,21 @@ public class AudioPlayer {
     }
 
     public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
-        LogUtil.d("onCallRenderYUV size:" + width * height);
+        if(myGLSurfaceView != null) {
+            myGLSurfaceView.setYUVData(width, height, y, u, v);
+        }
     }
 
-    private native void n_prepare(String  source);
+    private native void n_prepare(String source);
+
     private native void n_start();
+
     private native void n_pause();
+
     private native void n_resume();
+
     private native void n_stop();
+
     private native void n_seek(int secds);
 
 }

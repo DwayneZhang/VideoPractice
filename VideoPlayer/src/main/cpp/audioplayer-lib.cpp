@@ -29,7 +29,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source) {
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1prepare(JNIEnv *env, jobject thiz, jstring source) {
 
     const char *url = env->GetStringUTFChars(source, 0);
 
@@ -54,7 +54,7 @@ void *startCallback(void *data){
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1start(JNIEnv *env, jobject thiz) {
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1start(JNIEnv *env, jobject thiz) {
     if(ffmpeg != NULL) {
         pthread_create(&thread_start, NULL, startCallback,ffmpeg);
     }
@@ -62,7 +62,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1start(JNIEnv *env, jobject
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1pause(JNIEnv *env, jobject thiz) {
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1pause(JNIEnv *env, jobject thiz) {
     if(ffmpeg != NULL) {
         ffmpeg->pause();
     }
@@ -70,7 +70,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1pause(JNIEnv *env, jobject
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1resume(JNIEnv *env, jobject thiz) {
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1resume(JNIEnv *env, jobject thiz) {
     if(ffmpeg != NULL) {
         ffmpeg->resume();
     }
@@ -78,7 +78,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1resume(JNIEnv *env, jobjec
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject thiz) {
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1stop(JNIEnv *env, jobject thiz) {
     if (!nexit) {
         return;
     }
@@ -106,7 +106,7 @@ Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1stop(JNIEnv *env, jobject 
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_dwayne_com_audioplayer_player_AudioPlayer_n_1seek(JNIEnv *env, jobject thiz,
+Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1seek(JNIEnv *env, jobject thiz,
                                                            jint secds) {
     if(ffmpeg != NULL) {
         ffmpeg->seek(secds);
