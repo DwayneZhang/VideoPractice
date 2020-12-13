@@ -7,6 +7,7 @@
 
 #include "Queue.h"
 #include "CallJava.h"
+#include "Audio.h"
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -28,13 +29,23 @@ public:
 
     pthread_t thread_play;
 
+    Audio *audio = NULL;
+    double clock = 0;
+    double delayTime = 0;
+    double defaultDelayTime = 0.04;
+
 public:
     Video(PlayStatus *playStatus, CallJava *callJava);
+
     ~Video();
 
     void play();
 
     void release();
+
+    double getFrameDiffTime(AVFrame *avFrame);
+
+    double getDelayTime(double diff);
 };
 
 

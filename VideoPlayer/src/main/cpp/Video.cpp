@@ -62,8 +62,11 @@ void *playVideoCallBack(void *data) {
             avPacket = NULL;
             continue;
         }
-        LOGD("decoded avFrame success");
         if (avFrame->format == AV_PIX_FMT_YUV420P) {
+            double diff = video->getFrameDiffTime(avFrame);
+            av_usleep(video->getDelayTime(diff) * 1000000);
+            LOGD("diff is :%f", diff);
+            LOGD("delay time is :%f", video->getDelayTime(diff));
             video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
                                              video->avCodecContext->height,
                                              avFrame->data[0], avFrame->data[1],
@@ -95,9 +98,14 @@ void *playVideoCallBack(void *data) {
             sws_scale(swsContext, avFrame->data, avFrame->linesize, 0, avFrame->height,
                       pFrameYUV420P->data, pFrameYUV420P->linesize);
 
+            double diff = video->getFrameDiffTime(avFrame);
+            av_usleep(video->getDelayTime(diff) * 1000000);
+            LOGD("diff is :%f", diff);
+            LOGD("delay time is :%f", video->getDelayTime(diff));
             video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
                                              video->avCodecContext->height,
-                                             pFrameYUV420P->data[0], pFrameYUV420P->data[1],
+                                             pFrameYUV420P->data[0],
+                                             pFrameYUV420P->data[1],
                                              pFrameYUV420P->data[2]);
             av_frame_free(&avFrame);
             av_free(pFrameYUV420P);
@@ -141,4 +149,49 @@ void Video::release() {
     if (callJava != NULL) {
         callJava = NULL;
     }
+}
+
+double Video::getFrameDiffTime(AVFrame *avFrame) {
+
+    double pts = av_frame_get_best_effort_timestamp(avFrame);
+    if (pts == AV_NOPTS_VALUE) {
+        pts = 0;
+    }
+
+    pts *= av_q2d(time_base);
+    if (pts > 0) {
+        clock = pts;
+    }
+    double diff = audio->clock - clock;
+
+    return diff;
+}
+
+double Video::getDelayTime(double diff) {
+
+    if (diff > 0.003) {
+        delayTime = delayTime * 2 / 3;
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+    } else if (diff < -0.003) {
+        delayTime = delayTime * 3 / 2;
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+    }
+    if (diff >= 0.5) {
+        delayTime = 0;
+    } else if (diff <= -0.5) {
+        delayTime = defaultDelayTime * 2;
+    }
+
+    if (fabs(diff) >= 10) {
+        delayTime = defaultDelayTime;
+    }
+    return delayTime;
 }

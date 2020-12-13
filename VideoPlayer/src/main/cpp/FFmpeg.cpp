@@ -88,6 +88,13 @@ void FFmpeg::decodeFFmpegThread() {
                 video->streamIndex = i;
                 video->avCodecPar = pFormatCtx->streams[i]->codecpar;
                 video->time_base = pFormatCtx->streams[i]->time_base;
+
+                int num = pFormatCtx->streams[i]->avg_frame_rate.num;
+                int den = pFormatCtx->streams[i]->avg_frame_rate.den;
+                if (num != 0 && den != 0) {
+                    int fps = num / den;
+                    video->defaultDelayTime = 1.0 / fps;
+                }
             }
         }
     }
@@ -119,36 +126,32 @@ void FFmpeg::start() {
         return;
     }
 
+    if (video == NULL) {
+        if (LOG_DEBUG) {
+            LOGE("video is null");
+        }
+        return;
+    }
+
+    video->audio = audio;
+
     audio->play();
     video->play();
 
-    //解码音频流
-    int count = 0;
+    //解码音视频流
     while (playStatus != NULL && !playStatus->exit) {
         if (playStatus->seek) {
             av_usleep(1000 * 100);
             continue;
         }
-//        if (audio->queue->getQueueSize() > 40) {
-//            av_usleep(1000 * 100);
-//            continue;
-//        }
         AVPacket *avPacket = av_packet_alloc();
         pthread_mutex_lock(&seek_mutex);
         int ret = av_read_frame(pFormatCtx, avPacket);
         pthread_mutex_unlock(&seek_mutex);
         if (ret == 0) {
             if (avPacket->stream_index == audio->streamIndex) {
-//                count++;
-//                if(LOG_DEBUG) {
-//                    LOGD("decoded %d frame", count);
-//                }
                 audio->queue->putAvPacket(avPacket);
             } else if (avPacket->stream_index == video->streamIndex) {
-                count++;
-                if(LOG_DEBUG) {
-                    LOGD("decoded %d frame", count);
-                }
                 video->queue->putAvPacket(avPacket);
             } else {
                 av_packet_free(&avPacket);
@@ -271,7 +274,7 @@ FFmpeg::getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecCon
 
     //利用解码器创建解码器上下文
     *avCodecContext = avcodec_alloc_context3(dec);
-    if (!avCodecContext) {
+    if (!audio->avCodecContext) {
         if (LOG_DEBUG) {
             LOGE("can not find decoderCtx");
         }
