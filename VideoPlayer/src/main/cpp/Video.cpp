@@ -65,8 +65,8 @@ void *playVideoCallBack(void *data) {
         if (avFrame->format == AV_PIX_FMT_YUV420P) {
             double diff = video->getFrameDiffTime(avFrame);
             av_usleep(video->getDelayTime(diff) * 1000000);
-            LOGD("diff is :%f", diff);
-            LOGD("delay time is :%f", video->getDelayTime(diff));
+//            LOGD("diff is :%f", diff);
+//            LOGD("delay time is :%f", video->getDelayTime(diff));
             video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
                                              video->avCodecContext->height,
                                              avFrame->data[0], avFrame->data[1],
@@ -100,8 +100,8 @@ void *playVideoCallBack(void *data) {
 
             double diff = video->getFrameDiffTime(avFrame);
             av_usleep(video->getDelayTime(diff) * 1000000);
-            LOGD("diff is :%f", diff);
-            LOGD("delay time is :%f", video->getDelayTime(diff));
+//            LOGD("diff is :%f", diff);
+//            LOGD("delay time is :%f", video->getDelayTime(diff));
             video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
                                              video->avCodecContext->height,
                                              pFrameYUV420P->data[0],
@@ -157,7 +157,6 @@ double Video::getFrameDiffTime(AVFrame *avFrame) {
     if (pts == AV_NOPTS_VALUE) {
         pts = 0;
     }
-
     pts *= av_q2d(time_base);
     if (pts > 0) {
         clock = pts;
@@ -184,13 +183,13 @@ double Video::getDelayTime(double diff) {
             delayTime = defaultDelayTime * 2;
         }
     }
-    if (diff >= 0.5) {
+    if (diff >= 0.03) {
         delayTime = 0;
-    } else if (diff <= -0.5) {
+    } else if (diff <= -0.03) {
         delayTime = defaultDelayTime * 2;
     }
 
-    if (fabs(diff) >= 10) {
+    if (fabs(diff) >= 5) {
         delayTime = defaultDelayTime;
     }
     return delayTime;
