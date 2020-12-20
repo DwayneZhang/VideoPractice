@@ -7,7 +7,7 @@ project("ffmpegpractice")
 include_directories(src/main/cpp/include)
 
 add_library(audioplayer-lib SHARED
-        src/main/cpp/audioplayer-lib.cpp
+        src/main/cpp/videoplayer-lib.cpp
         src/main/cpp/CallJava.cpp
         src/main/cpp/FFmpeg.cpp
         src/main/cpp/Audio.cpp

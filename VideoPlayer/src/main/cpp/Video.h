@@ -33,6 +33,7 @@ public:
     double clock = 0;
     double delayTime = 0;
     double defaultDelayTime = 0.04;
+    pthread_mutex_t codecMutex;
 
 public:
     Video(PlayStatus *playStatus, CallJava *callJava);

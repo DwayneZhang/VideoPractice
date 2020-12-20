@@ -45,6 +45,7 @@ public class VideoPlayer {
     private OnCompleteListener onCompleteListener;
     private static TimeInfoBean timeInfoBean;
     private MyGLSurfaceView myGLSurfaceView;
+    private int duration = 0;
 
     public VideoPlayer() {
     }
@@ -81,6 +82,10 @@ public class VideoPlayer {
         this.myGLSurfaceView = myGLSurfaceView;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
     public void prepare() {
         if(TextUtils.isEmpty(source)) {
             LogUtil.d("source not be empty!");
@@ -114,6 +119,7 @@ public class VideoPlayer {
 
     public void stop() {
         timeInfoBean = null;
+        duration = 0;
         new Thread(() -> n_stop()).start();
     }
 
@@ -142,11 +148,12 @@ public class VideoPlayer {
         }
     }
 
-    public void onTimeInfo(int currentTime, int totalTime) {
+    public void onCallTimeInfo(int currentTime, int totalTime) {
         if(onTimeInfoListener != null) {
             if(timeInfoBean == null) {
                 timeInfoBean = new TimeInfoBean();
             }
+            duration = totalTime;
             timeInfoBean.setCurrentTime(currentTime);
             timeInfoBean.setTotalTime(totalTime);
             onTimeInfoListener.onTimeInfo(timeInfoBean);

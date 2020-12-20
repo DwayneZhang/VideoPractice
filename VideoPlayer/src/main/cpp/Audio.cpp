@@ -10,10 +10,11 @@ Audio::Audio(PlayStatus *playStatus, int sample_rate, CallJava *callJava) {
     this->callJava = callJava;
     queue = new Queue(playStatus);
     buffer = (uint8_t *) av_malloc(sample_rate * 2 * 2);
+    pthread_mutex_init(&codecMutex, NULL);
 }
 
 Audio::~Audio() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 
 void *decodPlay(void *data) {
@@ -56,11 +57,13 @@ int Audio::resampleAudio() {
             avPacket = NULL;
             continue;
         }
+        pthread_mutex_lock(&codecMutex);
         ret = avcodec_send_packet(avCodecContext, avPacket);
         if (ret != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+            pthread_mutex_unlock(&codecMutex);
             continue;
         }
         avFrame = av_frame_alloc();
@@ -96,6 +99,7 @@ int Audio::resampleAudio() {
                     swr_free(&swr_ctx);
                     swr_ctx = NULL;
                 }
+                pthread_mutex_unlock(&codecMutex);
                 continue;
             }
 
@@ -127,6 +131,7 @@ int Audio::resampleAudio() {
             avFrame = NULL;
             swr_free(&swr_ctx);
             swr_ctx = NULL;
+            pthread_mutex_unlock(&codecMutex);
             break;
         } else {
             av_packet_free(&avPacket);
@@ -136,6 +141,7 @@ int Audio::resampleAudio() {
             av_frame_free(&avFrame);
             av_free(avFrame);
             avFrame = NULL;
+            pthread_mutex_unlock(&codecMutex);
             continue;
         }
     }
@@ -321,9 +327,11 @@ void Audio::release() {
     }
 
     if (avCodecContext != NULL) {
+        pthread_mutex_lock(&codecMutex);
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
+        pthread_mutex_unlock(&codecMutex);
     }
 
     if(playStatus != NULL) {

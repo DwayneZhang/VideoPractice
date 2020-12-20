@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
     private VideoPlayer videoPlayer;
     private TextView tvTime;
     private MyGLSurfaceView myGLSurfaceView;
+    private SeekBar seekBar;
+    private int position;
+    private boolean isSeeking = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         tvTime = findViewById(R.id.tv_time);
         myGLSurfaceView = findViewById(R.id.gl_surface_view);
+        seekBar = findViewById(R.id.seek_bar);
 
         videoPlayer = new VideoPlayer();
         videoPlayer.setMyGLSurfaceView(myGLSurfaceView);
@@ -35,15 +40,36 @@ public class MainActivity extends AppCompatActivity {
             videoPlayer.start();
         });
         videoPlayer.setOnLoadListener(load -> LogUtil.d(load ? "loading" : "playing"));
-        videoPlayer.setOnPauseResumeListener(pause -> LogUtil.d(pause ? "pause" : "resume"));
+        videoPlayer.setOnPauseResumeListener(pause -> LogUtil.d(pause ? "pause" :
+                "resume"));
         videoPlayer.setOnTimeInfoListener(timeInfoBean -> {
             Message message = Message.obtain();
             message.what = 1;
             message.obj = timeInfoBean;
             handler.sendMessage(message);
         });
-        videoPlayer.setOnErrorListener((code, msg)-> LogUtil.e(String.format("error code:%d, msg:%s", code, msg)));
-        videoPlayer.setOnCompleteListener(()->LogUtil.d("play complete"));
+        videoPlayer.setOnErrorListener((code, msg) -> LogUtil.e(String.format("error " +
+                "code:%d, msg:%s", code, msg)));
+        videoPlayer.setOnCompleteListener(() -> LogUtil.d("play complete"));
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,
+                                          boolean fromUser) {
+                position = progress * videoPlayer.getDuration() / 100;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeeking = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                videoPlayer.seek(position);
+                isSeeking = false;
+            }
+        });
     }
 
 
@@ -70,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
                 tvTime.setText(String.format("%s/%s",
                         TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime()),
                         TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime())));
+                if(!isSeeking && timeInfoBean.getTotalTime() > 0) {
+                    seekBar.setProgress(timeInfoBean.getCurrentTime() * 100 / timeInfoBean.getTotalTime());
+                }
             }
         }
     };

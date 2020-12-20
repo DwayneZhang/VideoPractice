@@ -19,7 +19,7 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject *obj) {
 
     jmid_prepared = env->GetMethodID(jclz, "onCallPrepare", "()V");
     jmid_load = env->GetMethodID(jclz, "onCallLoad", "(Z)V");
-    jmid_timeinfo = env->GetMethodID(jclz, "onTimeInfo", "(II)V");
+    jmid_timeinfo = env->GetMethodID(jclz, "onCallTimeInfo", "(II)V");
     jmid_error = env->GetMethodID(jclz, "onCallError", "(ILjava/lang/String;)V");
     jmid_complete = env->GetMethodID(jclz, "onCallComplete", "()V");
     jmid_renderyuv = env->GetMethodID(jclz, "onCallRenderYUV", "(II[B[B[B)V");

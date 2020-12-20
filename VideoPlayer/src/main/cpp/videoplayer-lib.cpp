@@ -63,6 +63,11 @@ Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1start(JNIEnv *env, jobject
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1pause(JNIEnv *env, jobject thiz) {
+
+    if (playStatus != NULL) {
+        playStatus->pause = true;
+    }
+
     if(ffmpeg != NULL) {
         ffmpeg->pause();
     }
@@ -71,6 +76,11 @@ Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1pause(JNIEnv *env, jobject
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_dwayne_com_audioplayer_player_VideoPlayer_n_1resume(JNIEnv *env, jobject thiz) {
+
+    if (playStatus != NULL) {
+        playStatus->pause = false;
+    }
+
     if(ffmpeg != NULL) {
         ffmpeg->resume();
     }

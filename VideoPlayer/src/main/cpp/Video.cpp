@@ -9,10 +9,11 @@ Video::Video(PlayStatus *playStatus, CallJava *callJava) {
     this->playStatus = playStatus;
     this->callJava = callJava;
     queue = new Queue(playStatus);
+    pthread_mutex_init(&codecMutex, NULL);
 }
 
 Video::~Video() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 
 void *playVideoCallBack(void *data) {
@@ -20,6 +21,10 @@ void *playVideoCallBack(void *data) {
     while (video->playStatus != NULL && !video->playStatus->exit) {
 
         if (video->playStatus->seek) {
+            av_usleep(1000 * 100);
+            continue;
+        }
+        if(video->playStatus->pause) {
             av_usleep(1000 * 100);
             continue;
         }
@@ -44,10 +49,12 @@ void *playVideoCallBack(void *data) {
             avPacket = NULL;
             continue;
         }
+        pthread_mutex_lock(&video->codecMutex);
         if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+            pthread_mutex_unlock(&video->codecMutex);
             continue;
         }
         AVFrame *avFrame = av_frame_alloc();
@@ -60,6 +67,7 @@ void *playVideoCallBack(void *data) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+            pthread_mutex_unlock(&video->codecMutex);
             continue;
         }
         if (avFrame->format == AV_PIX_FMT_YUV420P) {
@@ -92,6 +100,7 @@ void *playVideoCallBack(void *data) {
                 av_frame_free(&avFrame);
                 av_free(pFrameYUV420P);
                 av_free(buffer);
+                pthread_mutex_unlock(&video->codecMutex);
                 continue;
             }
 
@@ -121,6 +130,7 @@ void *playVideoCallBack(void *data) {
         av_packet_free(&avPacket);
         av_free(avPacket);
         avPacket = NULL;
+        pthread_mutex_unlock(&video->codecMutex);
     }
     pthread_exit(&video->thread_play);
 }
@@ -137,9 +147,11 @@ void Video::release() {
     }
 
     if (avCodecContext != NULL) {
+        pthread_mutex_lock(&codecMutex);
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
+        pthread_mutex_unlock(&codecMutex);
     }
 
     if (playStatus != NULL) {
