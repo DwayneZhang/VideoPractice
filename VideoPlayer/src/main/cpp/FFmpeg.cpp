@@ -132,8 +132,15 @@ void FFmpeg::start() {
         }
         return;
     }
-
     video->audio = audio;
+
+    const char *codecName = ((const AVCodec*)video->avCodecContext->codec)->name;
+    supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName);
+    if (supportMediaCodec) {
+        video->codectype = CODEC_MEDIACODEC;
+    } else {
+        video->codectype = CODEC_YUV;
+    }
 
     audio->play();
     video->play();

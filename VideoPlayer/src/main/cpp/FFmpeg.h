@@ -30,6 +30,8 @@ public:
     int duration = 0;
     pthread_mutex_t seek_mutex;
 
+    bool supportMediaCodec = false;
+
 public:
     FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url);
     ~FFmpeg();

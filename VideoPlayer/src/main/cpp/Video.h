@@ -9,6 +9,9 @@
 #include "CallJava.h"
 #include "Audio.h"
 
+#define CODEC_YUV 0
+#define CODEC_MEDIACODEC 1
+
 extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavutil/time.h"
@@ -34,6 +37,8 @@ public:
     double delayTime = 0;
     double defaultDelayTime = 0.04;
     pthread_mutex_t codecMutex;
+
+    int codectype = CODEC_YUV;
 
 public:
     Video(PlayStatus *playStatus, CallJava *callJava);

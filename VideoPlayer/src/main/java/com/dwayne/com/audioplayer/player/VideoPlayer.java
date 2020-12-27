@@ -11,6 +11,7 @@ import com.dwayne.com.audioplayer.listener.OnPreparedListener;
 import com.dwayne.com.audioplayer.listener.OnTimeInfoListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
 import com.dwayne.com.audioplayer.opengl.MyGLSurfaceView;
+import com.dwayne.com.audioplayer.util.VideoSupportUtil;
 
 /**
  * @author Dwayne
@@ -185,6 +186,10 @@ public class VideoPlayer {
         if(myGLSurfaceView != null) {
             myGLSurfaceView.setYUVData(width, height, y, u, v);
         }
+    }
+
+    public boolean onCallSupportMediaCodec(String ffcodecname) {
+        return VideoSupportUtil.isSupportCodec(ffcodecname);
     }
 
     private native void n_prepare(String source);
