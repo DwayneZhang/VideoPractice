@@ -134,8 +134,37 @@ void FFmpeg::start() {
     }
     video->audio = audio;
 
-    const char *codecName = ((const AVCodec*)video->avCodecContext->codec)->name;
-    supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName);
+    const char *codecName = ((const AVCodec *) video->avCodecContext->codec)->name;
+
+    if(supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)) {
+        if (strcasecmp(codecName, "h264") == 0) {
+            bsFilter = av_bsf_get_by_name("h264_mp4toannexb");
+        } else if(strcasecmp(codecName, "h265") == 0) {
+            bsFilter = av_bsf_get_by_name("hevc_mp4toannexb");
+        }
+        if(bsFilter == NULL) {
+            goto end;
+        }
+        if(av_bsf_alloc(bsFilter, &video->abs_ctx) != 0) {
+            supportMediaCodec = false;
+            goto end;
+        }
+        if (avcodec_parameters_copy(video->abs_ctx->par_in, video->avCodecPar) < 0) {
+            supportMediaCodec = false;
+            av_bsf_free(&video->abs_ctx);
+            video->abs_ctx = NULL;
+            goto end;
+        }
+        if (av_bsf_init(video->abs_ctx) != 0) {
+            supportMediaCodec = false;
+            av_bsf_free(&video->abs_ctx);
+            video->abs_ctx = NULL;
+            goto end;
+        }
+        video->abs_ctx->time_base_in = video->time_base;
+    }
+
+    end:
     if (supportMediaCodec) {
         video->codectype = CODEC_MEDIACODEC;
     } else {

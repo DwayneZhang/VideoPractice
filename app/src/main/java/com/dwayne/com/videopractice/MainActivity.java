@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void begin(View view) {
 //        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
-        videoPlayer.setSource("/sdcard/Download/夺冠.mp4");
+        videoPlayer.setSource("/sdcard/Pictures/夺冠.mp4");
         videoPlayer.prepare();
     }
 

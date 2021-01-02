@@ -40,6 +40,8 @@ public:
 
     int codectype = CODEC_YUV;
 
+    AVBSFContext *abs_ctx = NULL;
+
 public:
     Video(PlayStatus *playStatus, CallJava *callJava);
 

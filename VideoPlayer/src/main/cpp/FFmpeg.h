@@ -32,6 +32,8 @@ public:
 
     bool supportMediaCodec = false;
 
+    const AVBitStreamFilter  *bsFilter = NULL;
+
 public:
     FFmpeg(PlayStatus *playStatus, CallJava *callJava, const char *url);
     ~FFmpeg();

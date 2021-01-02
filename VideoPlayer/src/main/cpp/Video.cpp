@@ -50,10 +50,21 @@ void *playVideoCallBack(void *data) {
             continue;
         }
         if (video->codectype == CODEC_MEDIACODEC) {
-            av_packet_free(&avPacket);
-            av_free(avPacket);
-            avPacket = NULL;
 
+            if (av_bsf_send_packet(video->abs_ctx, avPacket) != 0) {
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                avPacket = NULL;
+                continue;
+            }
+            while (av_bsf_receive_packet(video->abs_ctx, avPacket) == 0) {
+
+
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                continue;
+            }
+            avPacket = NULL;
         } else if (video->codectype == CODEC_YUV){
             pthread_mutex_lock(&video->codecMutex);
             if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
@@ -151,6 +162,11 @@ void Video::release() {
     if (queue != NULL) {
         delete queue;
         queue = NULL;
+    }
+
+    if (abs_ctx != NULL) {
+        av_bsf_free(&abs_ctx);
+        abs_ctx = NULL;
     }
 
     if (avCodecContext != NULL) {
