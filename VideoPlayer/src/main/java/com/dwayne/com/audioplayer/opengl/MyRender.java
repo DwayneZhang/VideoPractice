@@ -1,8 +1,11 @@
 package com.dwayne.com.audioplayer.opengl;
 
 import android.content.Context;
+import android.graphics.SurfaceTexture;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.view.Surface;
 
 import com.dwayne.com.audioplayer.R;
 
@@ -22,7 +25,10 @@ import javax.microedition.khronos.opengles.GL10;
  * @class describe
  */
 
-public class MyRender implements GLSurfaceView.Renderer {
+public class MyRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
+
+    public static final int RENDER_YUV = 1;
+    public static final int RENDER_MEDIACODEC = 2;
 
     private Context context;
 
@@ -44,6 +50,9 @@ public class MyRender implements GLSurfaceView.Renderer {
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer textureBuffer;
+    private int renderType = RENDER_YUV;
+
+    //yuv
     private int program_yuv;
     private int avPosition_yuv;
     private int afPosition_yuv;
@@ -58,6 +67,18 @@ public class MyRender implements GLSurfaceView.Renderer {
     private ByteBuffer y;
     private ByteBuffer u;
     private ByteBuffer v;
+
+    //mediacodec
+    private int program_mediacodec;
+    private int avPosition_mediacodec;
+    private int afPosition_mediacodec;
+    private int samplerOES_mediacodec;
+    private int textureId_mediacodec;
+    private SurfaceTexture surfaceTexture;
+    private Surface surface;
+
+    private OnSurfaceCreateListener onSurfaceCreateListener;
+    private OnRenderListener onRenderListener;
 
     public MyRender(Context context) {
         this.context = context;
@@ -74,9 +95,14 @@ public class MyRender implements GLSurfaceView.Renderer {
         textureBuffer.position(0);
     }
 
+    public void setRenderType(int renderType) {
+        this.renderType = renderType;
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         initRenderYUV();
+        initRenderMediaCodec();
     }
 
     @Override
@@ -88,14 +114,25 @@ public class MyRender implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        renderYUV();
+        if(renderType == RENDER_YUV) {
+            renderYUV();
+        } else {
+            renderMediacodec();
+        }
         // 图形绘制
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        if(onRenderListener != null) {
+            onRenderListener.OnRender();
+        }
+    }
+
     private void initRenderYUV() {
         String vertexSource = LoadShaderUtil.readRawTxt(context, R.raw.vertex_shader);
-        String fragmentSource = LoadShaderUtil.readRawTxt(context, R.raw.fragment_shader);
+        String fragmentSource = LoadShaderUtil.readRawTxt(context, R.raw.fragment_yuv);
         program_yuv = LoadShaderUtil.createProgram(vertexSource, fragmentSource);
 
         avPosition_yuv = GLES20.glGetAttribLocation(program_yuv, "av_Position");
@@ -176,5 +213,72 @@ public class MyRender implements GLSurfaceView.Renderer {
             u = null;
             v = null;
         }
+    }
+
+    private void initRenderMediaCodec() {
+        String vertexSource = LoadShaderUtil.readRawTxt(context, R.raw.vertex_shader);
+        String fragmentSource = LoadShaderUtil.readRawTxt(context, R.raw.fragment_mediacodec);
+        program_mediacodec = LoadShaderUtil.createProgram(vertexSource, fragmentSource);
+
+        avPosition_mediacodec = GLES20.glGetAttribLocation(program_mediacodec, "av_Position");
+        afPosition_mediacodec = GLES20.glGetAttribLocation(program_mediacodec, "af_Position");
+        samplerOES_mediacodec = GLES20.glGetUniformLocation(program_mediacodec, "sTexture");
+
+        int[] textureids = new int[1];
+        GLES20.glGenTextures(1, textureids, 0);
+        textureId_mediacodec = textureids[0];
+
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
+                GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
+                GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR);
+
+        surfaceTexture = new SurfaceTexture(textureId_mediacodec);
+        surface = new Surface(surfaceTexture);
+        surfaceTexture.setOnFrameAvailableListener(this);
+        if(onSurfaceCreateListener != null) {
+            onSurfaceCreateListener.onSurfaceCreate(surface);
+        }
+    }
+
+    private void renderMediacodec() {
+        surfaceTexture.updateTexImage();
+        GLES20.glUseProgram(program_mediacodec);
+
+        // 允许使用顶点坐标数组
+        GLES20.glEnableVertexAttribArray(avPosition_mediacodec);
+        // 顶点位置数据传入着色器
+        GLES20.glVertexAttribPointer(avPosition_mediacodec, 2, GLES20.GL_FLOAT, false, 8,
+                vertexBuffer);
+
+        // 允许使用纹理坐标数组
+        GLES20.glEnableVertexAttribArray(afPosition_mediacodec);
+        // 纹理位置数据传入着色器
+        GLES20.glVertexAttribPointer(afPosition_mediacodec, 2, GLES20.GL_FLOAT, false, 8,
+                textureBuffer);
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId_mediacodec);
+        GLES20.glUniform1i(samplerOES_mediacodec, 0);
+    }
+
+    public void setOnSurfaceCreateListener(OnSurfaceCreateListener onSurfaceCreateListener) {
+        this.onSurfaceCreateListener = onSurfaceCreateListener;
+    }
+
+    public interface OnSurfaceCreateListener {
+        void onSurfaceCreate(Surface surface);
+    }
+
+    public void setOnRenderListener(OnRenderListener onRenderListener) {
+        this.onRenderListener = onRenderListener;
+    }
+
+    public interface OnRenderListener {
+        void OnRender();
     }
 }

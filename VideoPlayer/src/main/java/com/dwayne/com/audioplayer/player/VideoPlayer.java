@@ -1,6 +1,9 @@
 package com.dwayne.com.audioplayer.player;
 
+import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.text.TextUtils;
+import android.view.Surface;
 
 import com.dwayne.com.audioplayer.TimeInfoBean;
 import com.dwayne.com.audioplayer.listener.OnCompleteListener;
@@ -11,7 +14,11 @@ import com.dwayne.com.audioplayer.listener.OnPreparedListener;
 import com.dwayne.com.audioplayer.listener.OnTimeInfoListener;
 import com.dwayne.com.audioplayer.log.LogUtil;
 import com.dwayne.com.audioplayer.opengl.MyGLSurfaceView;
+import com.dwayne.com.audioplayer.opengl.MyRender;
 import com.dwayne.com.audioplayer.util.VideoSupportUtil;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * @author Dwayne
@@ -47,6 +54,10 @@ public class VideoPlayer {
     private static TimeInfoBean timeInfoBean;
     private MyGLSurfaceView myGLSurfaceView;
     private int duration = 0;
+    private MediaFormat mediaFormat;
+    private MediaCodec mediaCodec;
+    private Surface surface;
+    private MediaCodec.BufferInfo bufferInfo;
 
     public VideoPlayer() {
     }
@@ -81,6 +92,12 @@ public class VideoPlayer {
 
     public void setMyGLSurfaceView(MyGLSurfaceView myGLSurfaceView) {
         this.myGLSurfaceView = myGLSurfaceView;
+        myGLSurfaceView.getMyRender().setOnSurfaceCreateListener(s -> {
+            if(surface == null) {
+                surface = s;
+                LogUtil.d("onSurfaceCreate");
+            }
+        });
     }
 
     public int getDuration() {
@@ -121,6 +138,7 @@ public class VideoPlayer {
     public void stop() {
         timeInfoBean = null;
         duration = 0;
+        releaseMediaCodec();
         new Thread(() -> n_stop()).start();
     }
 
@@ -184,12 +202,79 @@ public class VideoPlayer {
 
     public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
         if(myGLSurfaceView != null) {
+            myGLSurfaceView.getMyRender().setRenderType(MyRender.RENDER_YUV);
             myGLSurfaceView.setYUVData(width, height, y, u, v);
         }
     }
 
     public boolean onCallSupportMediaCodec(String ffcodecname) {
         return VideoSupportUtil.isSupportCodec(ffcodecname);
+    }
+
+    /**
+     * 初始化MediaCodec
+     *
+     * @param codecName
+     * @param width
+     * @param height
+     * @param csd_0
+     * @param csd_1
+     */
+    public void initMediaCodec(String codecName, int width, int height, byte[] csd_0,
+                               byte[] csd_1) {
+        if(surface != null) {
+            try {
+                myGLSurfaceView.getMyRender().setRenderType(MyRender.RENDER_MEDIACODEC);
+                String mime = VideoSupportUtil.findVideoCodecName(codecName);
+                mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
+                mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
+                mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd_0));
+                mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd_1));
+                LogUtil.d("mediaFormat---->" + mediaFormat.toString());
+
+                mediaCodec = MediaCodec.createDecoderByType(mime);
+                bufferInfo = new MediaCodec.BufferInfo();
+                mediaCodec.configure(mediaFormat, surface, null, 0);
+                mediaCodec.start();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            if(onErrorListener != null) {
+                onErrorListener.onError(2001, "surface is null");
+            }
+        }
+
+    }
+
+    public void decodeAVPacket(int dataSize, byte[] data) {
+        if(surface != null && dataSize > 0 && data != null && mediaCodec != null) {
+//            LogUtil.d("decodeAVPacket-->" + data.length);
+            int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+            if(inputBufferIndex >= 0) {
+                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
+                byteBuffer.clear();
+                byteBuffer.put(data);
+                mediaCodec.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0);
+            }
+            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
+            while(outputBufferIndex >= 0) {
+                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
+            }
+        }
+    }
+
+    private void releaseMediaCodec() {
+        if(mediaCodec != null) {
+            mediaCodec.flush();
+            mediaCodec.stop();
+            mediaCodec.release();
+
+            mediaCodec = null;
+            mediaFormat = null;
+            bufferInfo = null;
+        }
     }
 
     private native void n_prepare(String source);

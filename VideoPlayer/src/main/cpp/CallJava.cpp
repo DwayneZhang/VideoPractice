@@ -25,6 +25,9 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject *obj) {
     jmid_renderyuv = env->GetMethodID(jclz, "onCallRenderYUV", "(II[B[B[B)V");
     jmid_supportvideo = env->GetMethodID(jclz, "onCallSupportMediaCodec",
                                          "(Ljava/lang/String;)Z");
+    jmid_initmediacodec = env->GetMethodID(jclz, "initMediaCodec",
+                                         "(Ljava/lang/String;II[B[B)V");
+    jmid_decodeavpacket = env->GetMethodID(jclz, "decodeAVPacket", "(I[B)V");
 }
 
 CallJava::~CallJava() {
@@ -175,6 +178,51 @@ bool CallJava::onCallIsSupportVideo(int threadType, const char *ffcodecname) {
         javaVM->DetachCurrentThread();
     }
     return support;
+}
+
+void
+CallJava::onCallInitMediaCodec(const char *mime, int width, int height, int csd0_size,
+                               int csd1_size,
+                               uint8_t *csd_0, uint8_t *csd_1) {
+    JNIEnv *jniEnv;
+    if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
+        if (LOG_DEBUG) {
+            LOGE("get child thread jnienv wrong");
+        }
+    }
+
+    jstring type = jniEnv->NewStringUTF(mime);
+
+    jbyteArray csd0 = jniEnv->NewByteArray(csd0_size);
+    jniEnv->SetByteArrayRegion(csd0, 0, csd0_size, (jbyte *) csd_0);
+
+    jbyteArray csd1 = jniEnv->NewByteArray(csd1_size);
+    jniEnv->SetByteArrayRegion(csd1, 0, csd1_size, (jbyte *) csd_1);
+
+    jniEnv->CallVoidMethod(jobj, jmid_initmediacodec, type, width, height, csd0, csd1);
+
+    jniEnv->DeleteLocalRef(type);
+    jniEnv->DeleteLocalRef(csd0);
+    jniEnv->DeleteLocalRef(csd1);
+    javaVM->DetachCurrentThread();
+}
+
+void CallJava::onCallDecodeAVPacket(int datasize, uint8_t *data) {
+
+    JNIEnv *jniEnv;
+    if (javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK) {
+        if (LOG_DEBUG) {
+            LOGE("get child thread jnienv wrong");
+        }
+    }
+
+    jbyteArray jarray = jniEnv->NewByteArray(datasize);
+    jniEnv->SetByteArrayRegion(jarray, 0, datasize, (jbyte *) data);
+
+    jniEnv->CallVoidMethod(jobj, jmid_decodeavpacket, datasize, jarray);
+
+    jniEnv->DeleteLocalRef(jarray);
+    javaVM->DetachCurrentThread();
 }
 
 

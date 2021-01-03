@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void begin(View view) {
-//        audioPlayer.setSource("/storage/emulated/0/Download/dcjlxk.mp3");
         videoPlayer.setSource("/sdcard/Pictures/夺冠.mp4");
+//        videoPlayer.setSource("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
         videoPlayer.prepare();
     }
 

@@ -24,7 +24,7 @@ void *playVideoCallBack(void *data) {
             av_usleep(1000 * 100);
             continue;
         }
-        if(video->playStatus->pause) {
+        if (video->playStatus->pause) {
             av_usleep(1000 * 100);
             continue;
         }
@@ -59,13 +59,17 @@ void *playVideoCallBack(void *data) {
             }
             while (av_bsf_receive_packet(video->abs_ctx, avPacket) == 0) {
 
+                double diff = video->getFrameDiffTime(NULL, avPacket);
+                av_usleep(video->getDelayTime(diff) * 1000000);
+
+                video->callJava->onCallDecodeAVPacket(avPacket->size, avPacket->data);
 
                 av_packet_free(&avPacket);
                 av_free(avPacket);
                 continue;
             }
             avPacket = NULL;
-        } else if (video->codectype == CODEC_YUV){
+        } else if (video->codectype == CODEC_YUV) {
             pthread_mutex_lock(&video->codecMutex);
             if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
                 av_packet_free(&avPacket);
@@ -88,11 +92,12 @@ void *playVideoCallBack(void *data) {
                 continue;
             }
             if (avFrame->format == AV_PIX_FMT_YUV420P) {
-                double diff = video->getFrameDiffTime(avFrame);
+                double diff = video->getFrameDiffTime(avFrame, NULL);
                 av_usleep(video->getDelayTime(diff) * 1000000);
 //            LOGD("diff is :%f", diff);
 //            LOGD("delay time is :%f", video->getDelayTime(diff));
-                video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
+                video->callJava->onCallRenderYUV(CHILD_THREAD,
+                                                 video->avCodecContext->width,
                                                  video->avCodecContext->height,
                                                  avFrame->data[0], avFrame->data[1],
                                                  avFrame->data[2]);
@@ -121,14 +126,16 @@ void *playVideoCallBack(void *data) {
                     continue;
                 }
 
-                sws_scale(swsContext, avFrame->data, avFrame->linesize, 0, avFrame->height,
+                sws_scale(swsContext, avFrame->data, avFrame->linesize, 0,
+                          avFrame->height,
                           pFrameYUV420P->data, pFrameYUV420P->linesize);
 
-                double diff = video->getFrameDiffTime(avFrame);
+                double diff = video->getFrameDiffTime(avFrame, NULL);
                 av_usleep(video->getDelayTime(diff) * 1000000);
 //            LOGD("diff is :%f", diff);
 //            LOGD("delay time is :%f", video->getDelayTime(diff));
-                video->callJava->onCallRenderYUV(CHILD_THREAD, video->avCodecContext->width,
+                video->callJava->onCallRenderYUV(CHILD_THREAD,
+                                                 video->avCodecContext->width,
                                                  video->avCodecContext->height,
                                                  pFrameYUV420P->data[0],
                                                  pFrameYUV420P->data[1],
@@ -186,9 +193,17 @@ void Video::release() {
     }
 }
 
-double Video::getFrameDiffTime(AVFrame *avFrame) {
+double Video::getFrameDiffTime(AVFrame *avFrame, AVPacket *avPacket) {
+    double pts = 0;
+    if (avFrame != NULL) {
+        pts = av_frame_get_best_effort_timestamp(avFrame);
+    }
 
-    double pts = av_frame_get_best_effort_timestamp(avFrame);
+    if (avPacket != NULL) {
+        pts = avPacket->pts;
+    }
+
+
     if (pts == AV_NOPTS_VALUE) {
         pts = 0;
     }

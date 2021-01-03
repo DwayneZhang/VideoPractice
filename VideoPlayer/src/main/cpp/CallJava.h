@@ -20,16 +20,19 @@ public:
     JNIEnv *jniEnv = NULL;
     jobject jobj;
 
-    jmethodID  jmid_prepared;
-    jmethodID  jmid_load;
-    jmethodID  jmid_timeinfo;
-    jmethodID  jmid_error;
-    jmethodID  jmid_complete;
-    jmethodID  jmid_renderyuv;
-    jmethodID  jmid_supportvideo;
+    jmethodID jmid_prepared;
+    jmethodID jmid_load;
+    jmethodID jmid_timeinfo;
+    jmethodID jmid_error;
+    jmethodID jmid_complete;
+    jmethodID jmid_renderyuv;
+    jmethodID jmid_supportvideo;
+    jmethodID jmid_initmediacodec;
+    jmethodID jmid_decodeavpacket;
 
 public:
     CallJava(JavaVM *vm, JNIEnv *env, jobject *obj);
+
     ~CallJava();
 
     void onCallPrepared(int threadType);
@@ -46,6 +49,11 @@ public:
                          uint8_t *fu, uint8_t *fv);
 
     bool onCallIsSupportVideo(int threadType, const char *ffcodecname);
+
+    void onCallInitMediaCodec(const char *mime, int width, int height, int csd0_size, int csd1_size,
+                        uint8_t *csd_0, uint8_t *csd_1);
+
+    void onCallDecodeAVPacket(int datasize, uint8_t *data);
 
 };
 

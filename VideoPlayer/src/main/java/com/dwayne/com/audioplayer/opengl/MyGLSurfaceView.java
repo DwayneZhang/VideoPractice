@@ -3,6 +3,7 @@ package com.dwayne.com.audioplayer.opengl;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.Surface;
 
 /**
  * @author Dwayne
@@ -28,6 +29,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
         myRender = new MyRender(context);
         setRenderer(myRender);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        myRender.setOnRenderListener(new MyRender.OnRenderListener() {
+            @Override
+            public void OnRender() {
+                requestRender();
+            }
+        });
     }
 
     public void setYUVData(int width, int height, byte[] y, byte[] u, byte[] v) {
@@ -35,5 +42,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
             myRender.setYUVRenderData(width, height, y, u, v);
             requestRender();
         }
+    }
+
+    public MyRender getMyRender() {
+        return myRender;
     }
 }

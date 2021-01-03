@@ -136,16 +136,16 @@ void FFmpeg::start() {
 
     const char *codecName = ((const AVCodec *) video->avCodecContext->codec)->name;
 
-    if(supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)) {
+    if (supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)) {
         if (strcasecmp(codecName, "h264") == 0) {
             bsFilter = av_bsf_get_by_name("h264_mp4toannexb");
-        } else if(strcasecmp(codecName, "h265") == 0) {
+        } else if (strcasecmp(codecName, "h265") == 0) {
             bsFilter = av_bsf_get_by_name("hevc_mp4toannexb");
         }
-        if(bsFilter == NULL) {
+        if (bsFilter == NULL) {
             goto end;
         }
-        if(av_bsf_alloc(bsFilter, &video->abs_ctx) != 0) {
+        if (av_bsf_alloc(bsFilter, &video->abs_ctx) != 0) {
             supportMediaCodec = false;
             goto end;
         }
@@ -167,8 +167,14 @@ void FFmpeg::start() {
     end:
     if (supportMediaCodec) {
         video->codectype = CODEC_MEDIACODEC;
-    } else {
-        video->codectype = CODEC_YUV;
+        video->callJava->onCallInitMediaCodec(
+                codecName,
+                video->avCodecContext->width,
+                video->avCodecContext->height,
+                video->avCodecContext->extradata_size,
+                video->avCodecContext->extradata_size,
+                video->avCodecContext->extradata,
+                video->avCodecContext->extradata);
     }
 
     audio->play();
@@ -184,11 +190,6 @@ void FFmpeg::start() {
             av_usleep(1000 * 100);
             continue;
         }
-
-        if (video->queue->getQueueSize() > 40) {
-            av_usleep(1000 * 100);
-            continue;
-        }
         AVPacket *avPacket = av_packet_alloc();
         pthread_mutex_lock(&seek_mutex);
         int ret = av_read_frame(pFormatCtx, avPacket);
@@ -201,12 +202,10 @@ void FFmpeg::start() {
             } else {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
-                avPacket = NULL;
             }
         } else {
             av_packet_free(&avPacket);
             av_free(avPacket);
-            avPacket = NULL;
             while (playStatus != NULL && !playStatus->exit) {
                 if (audio->queue->getQueueSize() > 0) {
                     av_usleep(1000 * 100);
@@ -230,12 +229,22 @@ void FFmpeg::start() {
 }
 
 void FFmpeg::pause() {
+
+    if (playStatus != NULL) {
+        playStatus->pause = true;
+    }
+
     if (audio != NULL) {
         audio->pause();
     }
 }
 
 void FFmpeg::resume() {
+
+    if (playStatus != NULL) {
+        playStatus->pause = false;
+    }
+
     if (audio != NULL) {
         audio->resume();
     }
