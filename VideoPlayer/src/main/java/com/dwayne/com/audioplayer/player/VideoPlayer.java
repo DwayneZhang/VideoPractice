@@ -138,8 +138,10 @@ public class VideoPlayer {
     public void stop() {
         timeInfoBean = null;
         duration = 0;
-        releaseMediaCodec();
-        new Thread(() -> n_stop()).start();
+        new Thread(() -> {
+            n_stop();
+            releaseMediaCodec();
+        }).start();
     }
 
     public void seek(int secds) {
@@ -236,7 +238,7 @@ public class VideoPlayer {
                 bufferInfo = new MediaCodec.BufferInfo();
                 mediaCodec.configure(mediaFormat, surface, null, 0);
                 mediaCodec.start();
-            } catch(IOException e) {
+            } catch(Exception e) {
                 e.printStackTrace();
             }
         } else {
@@ -249,27 +251,35 @@ public class VideoPlayer {
 
     public void decodeAVPacket(int dataSize, byte[] data) {
         if(surface != null && dataSize > 0 && data != null && mediaCodec != null) {
-//            LogUtil.d("decodeAVPacket-->" + data.length);
-            int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
-            if(inputBufferIndex >= 0) {
-                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
-                byteBuffer.clear();
-                byteBuffer.put(data);
-                mediaCodec.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0);
+            try {
+                int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+                if(inputBufferIndex >= 0) {
+                    ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
+                    byteBuffer.clear();
+                    byteBuffer.put(data);
+                    mediaCodec.queueInputBuffer(inputBufferIndex, 0, dataSize, 0, 0);
+                }
+                int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
+                while(outputBufferIndex >= 0) {
+                    mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                    outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
-            while(outputBufferIndex >= 0) {
-                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
-                outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10);
-            }
+
         }
     }
 
     private void releaseMediaCodec() {
         if(mediaCodec != null) {
-            mediaCodec.flush();
-            mediaCodec.stop();
-            mediaCodec.release();
+            try {
+                mediaCodec.flush();
+                mediaCodec.stop();
+                mediaCodec.release();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
 
             mediaCodec = null;
             mediaFormat = null;

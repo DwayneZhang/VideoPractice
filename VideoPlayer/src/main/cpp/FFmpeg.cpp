@@ -20,7 +20,7 @@ FFmpeg::~FFmpeg() {
 void *decodeFFmpeg(void *data) {
     FFmpeg *ffmpeg = (FFmpeg *) data;
     ffmpeg->decodeFFmpegThread();
-    pthread_exit(&ffmpeg->decodeThread);
+    return 0;
 }
 
 void FFmpeg::perpare() {
@@ -252,6 +252,8 @@ void FFmpeg::resume() {
 
 void FFmpeg::release() {
     playStatus->exit = true;
+    pthread_join(decodeThread, NULL);
+
     pthread_mutex_lock(&init_mutex);
     int sleepCount = 0;
     while (!exit) {

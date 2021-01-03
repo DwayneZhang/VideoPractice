@@ -157,14 +157,21 @@ void *playVideoCallBack(void *data) {
             pthread_mutex_unlock(&video->codecMutex);
         }
     }
-    pthread_exit(&video->thread_play);
+    return 0;
 }
 
 void Video::play() {
-    pthread_create(&thread_play, NULL, playVideoCallBack, this);
+    if (playStatus != NULL && !playStatus->exit) {
+        pthread_create(&thread_play, NULL, playVideoCallBack, this);
+    }
 }
 
 void Video::release() {
+
+    if (queue != NULL) {
+        queue->noticeQueue();
+    }
+    pthread_join(thread_play, NULL);
 
     if (queue != NULL) {
         delete queue;
